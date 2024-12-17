@@ -13,4 +13,8 @@ public class TentativeConnection {
     private Integer idTentativeConnection;
 
     private int nombre;
+
+    public TentativeConnection(){
+        this.setNombre(0);
+    }
 }
