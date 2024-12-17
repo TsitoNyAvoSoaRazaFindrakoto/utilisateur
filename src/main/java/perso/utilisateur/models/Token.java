@@ -2,6 +2,8 @@ package perso.utilisateur.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import perso.utilisateur.util.SecurityUtil;
+
 import java.time.LocalDateTime;
 
 @Entity

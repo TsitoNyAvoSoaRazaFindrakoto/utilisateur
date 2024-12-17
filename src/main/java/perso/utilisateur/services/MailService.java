@@ -25,10 +25,10 @@ public class MailService {
 		mailSender.send(message);
 	}
 
-	public void sendEmail(Object utilisateur) {
+	public void sendEmail(Object utilisateur,String pin) {
 		if (utilisateur instanceof Integer) {
 			utilisateur = utilisateurRepo.findById((Integer) utilisateur).get();
 		}
-		sendEmail(((Utilisateur)utilisateur).getEmail(),"Pin code", ((Utilisateur)utilisateur).getPin().getPinValue());
+		sendEmail(((Utilisateur)utilisateur).getEmail(),"Pin code", pin);
 	}
 }
