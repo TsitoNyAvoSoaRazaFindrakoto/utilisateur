@@ -1,7 +1,6 @@
 package perso.utilisateur.services;
 
 import org.springframework.stereotype.Service;
-import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.models.Pin;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.PinRepo;

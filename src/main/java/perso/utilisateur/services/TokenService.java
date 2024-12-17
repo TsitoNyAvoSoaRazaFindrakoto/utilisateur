@@ -6,12 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-import perso.utilisateur.config.ParameterSercurity;
 import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.TokenRepo;
 import perso.utilisateur.repositories.UtilisateurRepo;
-import perso.utilisateur.util.SecurityUtil;
 
 @Service
 public class TokenService {
@@ -19,11 +17,9 @@ public class TokenService {
 	private TokenRepo tokenRepo;
 	@Autowired
 	private UtilisateurRepo utilisateurRepo;
-	@Autowired
-	private ParameterSercurity parameterSercurity;
 
 	private Token createToken(){
-		Token t = new Token(null, SecurityUtil.generateToken(), LocalDateTime.now().plusHours(((int)parameterSercurity.getDurreVieSession())));
+		Token t = new Token();
 
 		return tokenRepo.save(t);
 	}
@@ -33,24 +29,24 @@ public class TokenService {
 	}
 
 	@Transactional
-	public Token reassignToken(String ActualToken){
+	public Token reassignUserToken(String ActualToken){
 		Utilisateur u = utilisateurRepo.findUtilisteurFromTokenValue(ActualToken).get();
 		if (!isTokenValid(u.getToken())) {
 			return null;
 		}
-		deleteToken(u);
-		return assignToken(u);
+		deleteUserToken(u);
+		return assignUserToken(u);
 	}
 
 	@Transactional
-	public void deleteToken(Utilisateur u){
+	public void deleteUserToken(Utilisateur u){
 		Token oldToken = u.getToken();
 		tokenRepo.delete(oldToken);
 		u.setToken(null);
 	}
 
 	@Transactional
-	public Token assignToken(Utilisateur u){
+	public Token assignUserToken(Utilisateur u){
 		Token newT = createToken();
 		u.setToken(newT);
 		utilisateurRepo.save(u);

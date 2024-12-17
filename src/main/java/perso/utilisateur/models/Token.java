@@ -5,7 +5,6 @@ import lombok.*;
 import perso.utilisateur.util.SecurityUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "token")
@@ -25,7 +24,7 @@ public class Token {
 	private LocalDateTime dateExpiration;
 
 	public Token(){
-		this.setTokenValue(UUID.randomUUID().toString());
-		this.setDateExpiration(LocalDateTime.now().plusDays(1));
+		this.setTokenValue(SecurityUtil.generateToken());
+		this.setDateExpiration(LocalDateTime.now().plusHours(1));
 	}
 }
