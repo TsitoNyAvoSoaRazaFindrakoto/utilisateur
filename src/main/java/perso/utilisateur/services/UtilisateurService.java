@@ -1,10 +1,11 @@
 package perso.utilisateur.services;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.exception.ConnectionAttemptException;
 import perso.utilisateur.exception.PasswordInvalidException;
+import perso.utilisateur.exception.WrongPinException;
+import perso.utilisateur.models.TentativeConnection;
 import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
@@ -16,9 +17,12 @@ public class UtilisateurService {
 
     private TentativeConnectionService tentativeConnectionService;
 
-    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService) {
+    private RoleService roleService;
+
+    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService, RoleService roleService) {
         this.utilisateurRepo = utilisateurRepo;
         this.tentativeConnectionService = tentativeConnectionService;
+        this.roleService = roleService;
     }
 
     public Utilisateur findByEmail(String email)throws RuntimeException{
@@ -37,6 +41,8 @@ public class UtilisateurService {
     }
 
     public Utilisateur save(Utilisateur utilisateur){
+        utilisateur.setRole(this.roleService.findById(1));
+        utilisateur.setTentativeConnection(new TentativeConnection());
         return utilisateurRepo.save(utilisateur);
     }
 
@@ -45,20 +51,45 @@ public class UtilisateurService {
             return this.testLogin(email,password);
         }
         catch (PasswordInvalidException exception){
-            Utilisateur utilisateur = exception.getUtilisateur();
-            try{
-                tentativeConnectionService.increaseNumberAttempt(utilisateur);
-                this.save(utilisateur);
-            }
-            catch (ConnectionAttemptException connectionException){
-                return new ResponseJSON(connectionException.getMessage(),200,utilisateur.getIdUtilisateur());
-            }
-            return new ResponseJSON(exception.getMessage(),500);
+            return this.increaseAttempt(exception.getUtilisateur(),exception.getMessage());
         }
         catch (RuntimeException exception){
             return new ResponseJSON(exception.getMessage(),500);
         }
     }
 
+    public ResponseJSON increaseAttempt(Utilisateur utilisateur,String message){
+        try{
+            tentativeConnectionService.increaseNumberAttempt(utilisateur);
+            this.save(utilisateur);
+        }
+        catch (ConnectionAttemptException connectionException){
+            return new ResponseJSON(connectionException.getMessage(),200,utilisateur.getIdUtilisateur());
+        }
+        return new ResponseJSON(message,500);
+    }
 
+    public ResponseJSON loginPin(String pin,Utilisateur utilisateur){
+        String pinHashed=utilisateur.getPin().getPinValue();
+        if(SecurityUtil.matchPassword(pin,pinHashed)){
+            utilisateur.setToken(new Token());
+            this.save(utilisateur);
+            return new ResponseJSON("Code pin valide",200,utilisateur.getToken().getTokenValue());
+        }
+        throw new WrongPinException(utilisateur);
+    }
+
+    public ResponseJSON loginPin(String pin,Integer idUtilisateur){
+        Utilisateur utilisateur=null;
+        try{
+            utilisateur=this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException());
+            return loginPin(pin,utilisateur);
+        }
+        catch (WrongPinException ex){
+            return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
+        }
+        catch (RuntimeException ex){
+            return new ResponseJSON(ex.getMessage(),500);
+        }
+    }
 }
