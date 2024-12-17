@@ -11,7 +11,7 @@
 	<groupId>perso</groupId>
 	<artifactId>utilisateur</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>utilisateur</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
