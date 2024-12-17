@@ -1,3 +1,9 @@
+\c postgres;
+drop DATABASE if EXISTS utilisateur;
+
+create database utilisateur;
+\c utilisateur;
+
 CREATE TABLE role(
    id_role SERIAL,
    role VARCHAR(50)  NOT NULL,
