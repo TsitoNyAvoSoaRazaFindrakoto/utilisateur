@@ -1,7 +1,6 @@
 package perso.utilisateur.services;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.TokenRepo;
 import perso.utilisateur.repositories.UtilisateurRepo;
+import perso.utilisateur.util.SecurityUtil;
 
 @Service
 public class TokenService {
@@ -23,7 +23,7 @@ public class TokenService {
 	private ParameterSercurity parameterSercurity;
 
 	private Token createToken(){
-		Token t = new Token(null, UUID.randomUUID().toString(), LocalDateTime.now().plusHours(((int)parameterSercurity.getDurreVieSession()))); 
+		Token t = new Token(null, SecurityUtil.generateToken(), LocalDateTime.now().plusHours(((int)parameterSercurity.getDurreVieSession())));
 
 		return tokenRepo.save(t);
 	}
