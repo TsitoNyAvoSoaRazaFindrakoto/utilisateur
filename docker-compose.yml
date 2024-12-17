@@ -1,0 +1,32 @@
+version: '3.8' # Version de Docker Compose
+
+services:
+  app:
+    build:
+      context: . # Le contexte de build est le répertoire actuel
+      dockerfile: Dockerfile # Fichier Docker utilisé pour construire l'image
+    image: myapp-image # Nom de l'image Docker pour votre application
+    depends_on:
+      - postgres # Démarre l'application après PostgreSQL
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/utilisateur # URL de la base de données
+      SPRING_DATASOURCE_USERNAME: postgres # Nom d'utilisateur pour PostgreSQL
+      SPRING_DATASOURCE_PASSWORD: fifaliana # Mot de passe pour PostgreSQL
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD} # Chargé depuis le fichier .env
+    ports:
+      - "8082:8082" # Mappe le port 8082 de l'application au port 8082 de la machine hôte
+
+  postgres:
+    image: postgres:15 # Image officielle de PostgreSQL version 15
+    container_name: postgres-container # Nom du conteneur PostgreSQL
+    environment:
+      POSTGRES_USER: postgres # Nom d'utilisateur par défaut pour PostgreSQL
+      POSTGRES_PASSWORD: fifaliana # Mot de passe pour PostgreSQL
+      POSTGRES_DB: utilisateur # Nom de la base de données créée au démarrage
+    ports:
+      - "5432:5432" # Mappe le port 5432 de PostgreSQL au port 5432 de la machine hôte
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Volume pour stocker les données de PostgreSQL
+
+volumes:
+  postgres_data: # Volume nommé pour persister les données de PostgreSQL
