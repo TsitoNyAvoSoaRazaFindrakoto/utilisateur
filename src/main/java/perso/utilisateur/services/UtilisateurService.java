@@ -14,27 +14,26 @@ import perso.utilisateur.util.SecurityUtil;
 @Service
 public class UtilisateurService {
     private UtilisateurRepo utilisateurRepo;
-
     private TentativeConnectionService tentativeConnectionService;
-
     private RoleService roleService;
+		private TokenService tokenService;
 
-    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService, RoleService roleService) {
-        this.utilisateurRepo = utilisateurRepo;
-        this.tentativeConnectionService = tentativeConnectionService;
-        this.roleService = roleService;
-    }
+    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService,
+				RoleService roleService, TokenService tokenService) {
+			this.utilisateurRepo = utilisateurRepo;
+			this.tentativeConnectionService = tentativeConnectionService;
+			this.roleService = roleService;
+			this.tokenService = tokenService;
+		}
 
-    public Utilisateur findByEmail(String email)throws RuntimeException{
+		public Utilisateur findByEmail(String email)throws RuntimeException{
         return utilisateurRepo.findByEmail(email).orElseThrow(()->new RuntimeException("Email inexistante"));
     }
 
     public ResponseJSON testLogin(String email,String password)throws RuntimeException{
         Utilisateur utilisateur=this.findByEmail(email);
         if(SecurityUtil.matchPassword(password,utilisateur.getPassword())){
-            Token token=new Token();
-            utilisateur.setToken(token);
-            this.save(utilisateur);
+            tokenService.createUserToken(utilisateur);
             return new ResponseJSON("Login valide",200,utilisateur.getIdUtilisateur());
         }
         throw new PasswordInvalidException(utilisateur);
@@ -72,9 +71,7 @@ public class UtilisateurService {
     public ResponseJSON loginPin(String pin,Utilisateur utilisateur){
         String pinHashed=utilisateur.getPin().getPinValue();
         if(SecurityUtil.matchPassword(pin,pinHashed)){
-            utilisateur.setToken(new Token());
-            this.save(utilisateur);
-            return new ResponseJSON("Code pin valide",200,utilisateur.getToken().getTokenValue());
+            return new ResponseJSON("Code pin valide",200,tokenService.createUserToken(utilisateur).getTokenValue());
         }
         throw new WrongPinException(utilisateur);
     }

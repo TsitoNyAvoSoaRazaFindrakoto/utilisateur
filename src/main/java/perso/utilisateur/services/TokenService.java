@@ -30,23 +30,30 @@ public class TokenService {
 
 	@Transactional
 	public Token reassignUserToken(String ActualToken){
-		Utilisateur u = utilisateurRepo.findUtilisteurFromTokenValue(ActualToken).get();
-		if (!isTokenValid(u.getToken())) {
+		Utilisateur u = utilisateurRepo.findUtilisteurFromTokenValue(ActualToken).orElse(null);
+		if (u == null || !isTokenValid(u.getToken())) {
 			return null;
 		}
-		deleteUserToken(u);
+		return createUserToken(u);
+	}
+
+	@Transactional 
+	public Token createUserToken(Utilisateur u){
+		if (u.getToken() != null) {
+			deleteUserToken(u);
+		}
 		return assignUserToken(u);
 	}
 
 	@Transactional
-	public void deleteUserToken(Utilisateur u){
+	void deleteUserToken(Utilisateur u){
 		Token oldToken = u.getToken();
 		tokenRepo.delete(oldToken);
 		u.setToken(null);
 	}
 
 	@Transactional
-	public Token assignUserToken(Utilisateur u){
+	Token assignUserToken(Utilisateur u){
 		Token newT = createToken();
 		u.setToken(newT);
 		utilisateurRepo.save(u);
