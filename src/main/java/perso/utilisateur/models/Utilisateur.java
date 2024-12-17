@@ -24,20 +24,20 @@ public class Utilisateur {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "id_pin", referencedColumnName = "id_pin")
     private Pin pin;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "id_token", referencedColumnName = "id_token")
     private Token token;
 
-    @OneToOne(optional = false,fetch = FetchType.LAZY)
+    @OneToOne(optional = false,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
     private Role role;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tentative_connection", referencedColumnName = "idTentativeConnection")
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_tentative_connection", referencedColumnName = "id_tentative_connection")
     private TentativeConnection tentativeConnection;
 }
 

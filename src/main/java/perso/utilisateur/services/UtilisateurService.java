@@ -1,5 +1,6 @@
 package perso.utilisateur.services;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.exception.ConnectionAttemptException;
@@ -28,9 +29,15 @@ public class UtilisateurService {
         Utilisateur utilisateur=this.findByEmail(email);
         if(SecurityUtil.matchPassword(password,utilisateur.getPassword())){
             Token token=new Token();
-            return new ResponseJSON("Login valide",200);
+            utilisateur.setToken(token);
+            this.save(utilisateur);
+            return new ResponseJSON("Login valide",200,utilisateur.getIdUtilisateur());
         }
         throw new PasswordInvalidException(utilisateur);
+    }
+
+    public Utilisateur save(Utilisateur utilisateur){
+        return utilisateurRepo.save(utilisateur);
     }
 
     public ResponseJSON login(String email, String password)throws RuntimeException{
@@ -41,9 +48,10 @@ public class UtilisateurService {
             Utilisateur utilisateur = exception.getUtilisateur();
             try{
                 tentativeConnectionService.increaseNumberAttempt(utilisateur);
+                this.save(utilisateur);
             }
             catch (ConnectionAttemptException connectionException){
-                return new ResponseJSON(connectionException.getMessage(),500);
+                return new ResponseJSON(connectionException.getMessage(),200,utilisateur.getIdUtilisateur());
             }
             return new ResponseJSON(exception.getMessage(),500);
         }

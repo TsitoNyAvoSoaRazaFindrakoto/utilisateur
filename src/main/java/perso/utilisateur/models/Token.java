@@ -2,6 +2,8 @@ package perso.utilisateur.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import perso.utilisateur.util.SecurityUtil;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,8 +23,4 @@ public class Token {
 
 	@Column(name = "date_expiration", nullable = false)
 	private LocalDateTime dateExpiration;
-
-	public Token(){
-		this.setTokenValue();
-	}
 }
