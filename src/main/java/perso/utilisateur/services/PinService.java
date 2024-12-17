@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import perso.utilisateur.models.Pin;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.PinRepo;
-import perso.utilisateur.util.PasswordUtil;
+import perso.utilisateur.util.SecurityUtil;
 
 @Service
 public class PinService {
@@ -15,8 +15,8 @@ public class PinService {
     }
 
     public String generatePin(Utilisateur utilisateur){
-        String pinRaw= PasswordUtil.generatePin();
-        Pin pin=new Pin(PasswordUtil.hashPassword(pinRaw));
+        String pinRaw= SecurityUtil.generatePin();
+        Pin pin=new Pin(SecurityUtil.hashPassword(pinRaw));
         utilisateur.setPin(pin);
         return pinRaw;
     }

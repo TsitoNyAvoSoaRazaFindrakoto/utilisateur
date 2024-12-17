@@ -1,10 +1,6 @@
 package perso.utilisateur.controller;
 
-import jakarta.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import perso.utilisateur.dto.LoginDTO;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.services.UtilisateurService;
@@ -17,8 +13,8 @@ public class UtilisateurController {
         this.utilisateurService = utilisateurService;
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseJSON login(@ModelAttribute LoginDTO loginDTO){
-        return utilisateurService.testLogin(loginDTO.getEmail(), loginDTO.getPassword());
+        return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
     }
 }

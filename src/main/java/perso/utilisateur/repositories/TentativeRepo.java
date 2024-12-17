@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import perso.utilisateur.models.TentativeConnection;
 
 @Repository
-public interface TentativeRepo extends JpaRepository<TentativeConnection,Long> {
+public interface TentativeRepo extends JpaRepository<TentativeConnection,Integer> {
 }

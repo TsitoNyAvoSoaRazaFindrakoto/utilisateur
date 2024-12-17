@@ -4,10 +4,10 @@ import org.springframework.stereotype.Service;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.exception.ConnectionAttemptException;
 import perso.utilisateur.exception.PasswordInvalidException;
-import perso.utilisateur.models.TentativeConnection;
+import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
-import perso.utilisateur.util.PasswordUtil;
+import perso.utilisateur.util.SecurityUtil;
 
 @Service
 public class UtilisateurService {
@@ -26,7 +26,8 @@ public class UtilisateurService {
 
     public ResponseJSON testLogin(String email,String password)throws RuntimeException{
         Utilisateur utilisateur=this.findByEmail(email);
-        if(PasswordUtil.matchPassword(password,utilisateur.getPassword())){
+        if(SecurityUtil.matchPassword(password,utilisateur.getPassword())){
+            Token token=new Token();
             return new ResponseJSON("Login valide",200);
         }
         throw new PasswordInvalidException(utilisateur);

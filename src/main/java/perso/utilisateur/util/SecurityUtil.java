@@ -4,7 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Random;
 
-public final class PasswordUtil {
+public final class SecurityUtil {
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     private static final Random random = new Random();

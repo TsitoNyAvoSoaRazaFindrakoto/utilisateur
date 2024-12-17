@@ -21,4 +21,8 @@ public class Token {
 
 	@Column(name = "date_expiration", nullable = false)
 	private LocalDateTime dateExpiration;
+
+	public Token(){
+		this.setTokenValue();
+	}
 }

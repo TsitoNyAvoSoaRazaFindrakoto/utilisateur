@@ -2,7 +2,6 @@ package perso.utilisateur.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import perso.utilisateur.util.PasswordUtil;
 
 @Entity
 @Table(name = "pin")
