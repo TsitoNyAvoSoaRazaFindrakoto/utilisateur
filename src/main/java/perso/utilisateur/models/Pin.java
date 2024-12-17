@@ -17,4 +17,8 @@ public class Pin {
 
 	@Column(name = "pin", nullable = false)
 	private String pinValue;
+
+	public Pin(String pinValue){
+		this.setPinValue(pinValue);
+	}
 }
