@@ -4,12 +4,15 @@ import org.springframework.stereotype.Service;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.exception.ConnectionAttemptException;
 import perso.utilisateur.exception.PasswordInvalidException;
+import perso.utilisateur.exception.PinExpiredException;
 import perso.utilisateur.exception.WrongPinException;
 import perso.utilisateur.models.TentativeConnection;
 import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
 import perso.utilisateur.util.SecurityUtil;
+
+import java.time.LocalDateTime;
 
 @Service
 public class UtilisateurService {
@@ -18,13 +21,14 @@ public class UtilisateurService {
     private RoleService roleService;
 		private TokenService tokenService;
 
-    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService,
-				RoleService roleService, TokenService tokenService) {
-			this.utilisateurRepo = utilisateurRepo;
-			this.tentativeConnectionService = tentativeConnectionService;
-			this.roleService = roleService;
-			this.tokenService = tokenService;
-		}
+    private MailService mailService;
+
+    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService, RoleService roleService, MailService mailService) {
+        this.utilisateurRepo = utilisateurRepo;
+        this.tentativeConnectionService = tentativeConnectionService;
+        this.roleService = roleService;
+        this.mailService = mailService;
+    }
 
 		public Utilisateur findByEmail(String email)throws RuntimeException{
         return utilisateurRepo.findByEmail(email).orElseThrow(()->new RuntimeException("Email inexistante"));
@@ -33,6 +37,12 @@ public class UtilisateurService {
     public ResponseJSON testLogin(String email,String password)throws RuntimeException{
         Utilisateur utilisateur=this.findByEmail(email);
         if(SecurityUtil.matchPassword(password,utilisateur.getPassword())){
+            Token token=new Token();
+            utilisateur.setToken(token);
+            utilisateur.setPin();
+            mailService.sendEmail(utilisateur,utilisateur.getPin().getPinValue());
+            this.save(utilisateur);
+
             tokenService.createUserToken(utilisateur);
             return new ResponseJSON("Login valide",200,utilisateur.getIdUtilisateur());
         }
@@ -41,7 +51,6 @@ public class UtilisateurService {
 
     public Utilisateur save(Utilisateur utilisateur){
         utilisateur.setRole(this.roleService.findById(1));
-        utilisateur.setTentativeConnection(new TentativeConnection());
         return utilisateurRepo.save(utilisateur);
     }
 
@@ -60,10 +69,12 @@ public class UtilisateurService {
     public ResponseJSON increaseAttempt(Utilisateur utilisateur,String message){
         try{
             tentativeConnectionService.increaseNumberAttempt(utilisateur);
-            this.save(utilisateur);
         }
         catch (ConnectionAttemptException connectionException){
             return new ResponseJSON(connectionException.getMessage(),200,utilisateur.getIdUtilisateur());
+        }
+        finally {
+            this.save(utilisateur);
         }
         return new ResponseJSON(message,500);
     }
@@ -71,7 +82,12 @@ public class UtilisateurService {
     public ResponseJSON loginPin(String pin,Utilisateur utilisateur){
         String pinHashed=utilisateur.getPin().getPinValue();
         if(SecurityUtil.matchPassword(pin,pinHashed)){
-            return new ResponseJSON("Code pin valide",200,tokenService.createUserToken(utilisateur).getTokenValue());
+            if(utilisateur.getPin().getDateExpiration().isAfter(LocalDateTime.now())){
+                throw new PinExpiredException(utilisateur);
+            }
+            utilisateur.setToken(new Token());
+            this.save(utilisateur);
+            return new ResponseJSON("Code pin valide",200,utilisateur.getToken().getTokenValue());
         }
         throw new WrongPinException(utilisateur);
     }
@@ -81,6 +97,9 @@ public class UtilisateurService {
         try{
             utilisateur=this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException());
             return loginPin(pin,utilisateur);
+        }
+        catch (PinExpiredException ex){
+            return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         }
         catch (WrongPinException ex){
             return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
