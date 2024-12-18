@@ -31,6 +31,5 @@ services:
     depends_on:
       - database
 
-# Définir les volumes
 volumes:
   postgres-data:
