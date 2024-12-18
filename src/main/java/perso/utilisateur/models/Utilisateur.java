@@ -2,6 +2,7 @@ package perso.utilisateur.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import perso.utilisateur.util.SecurityUtil;
 
 @Entity
 @Table(name = "utilisateur")
@@ -36,8 +37,16 @@ public class Utilisateur {
     @JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
     private Role role;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_tentative_connection", referencedColumnName = "id_tentative_connection")
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @JoinColumn(name = "id_tentative_connection")
     private TentativeConnection tentativeConnection;
+
+    public void setPin(){
+        this.pin=new Pin(SecurityUtil.generatePin());
+    }
+
+    public void increaseNumberAttempt(){
+        this.tentativeConnection.setNombre(this.tentativeConnection.getNombre()+1);
+    }
 }
 

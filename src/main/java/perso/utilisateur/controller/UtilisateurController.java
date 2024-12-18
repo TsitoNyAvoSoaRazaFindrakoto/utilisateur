@@ -20,6 +20,7 @@ public class UtilisateurController {
     @PostMapping("/login")
     public ResponseJSON login(@RequestBody LoginDTO loginDTO){
         return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
+        //return new ResponseJSON("ok",200,loginDTO);
     }
 
     @PostMapping("/login/pin")

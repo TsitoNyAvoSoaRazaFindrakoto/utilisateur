@@ -17,7 +17,7 @@ public final class SecurityUtil {
     public static String generatePin(){
         String valiny="";
         for (int i=0;i<4;i++){
-            valiny+=random.nextInt();
+            valiny+=random.nextInt(10);
         }
         return valiny;
     }
