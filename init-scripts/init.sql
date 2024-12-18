@@ -1,45 +1,47 @@
-CREATE TABLE role(
-                    id_role SERIAL,
-                    role VARCHAR(50)  NOT NULL,
-                    PRIMARY KEY(id_role),
-                    UNIQUE(role)
+CREATE TABLE IF NOT EXISTS ROLE(
+    ID_ROLE SERIAL,
+    ROLE VARCHAR(50) NOT NULL,
+    PRIMARY KEY(ID_ROLE),
+    UNIQUE(ROLE)
 );
 
-CREATE TABLE token(
-                     id_token SERIAL,
-                     token VARCHAR(255)  NOT NULL,
-                     date_expiration TIMESTAMP NOT NULL,
-                     PRIMARY KEY(id_token),
-                     UNIQUE(token)
+CREATE TABLE IF NOT EXISTS TOKEN(
+    ID_TOKEN SERIAL,
+    TOKEN VARCHAR(255) NOT NULL,
+    DATE_EXPIRATION TIMESTAMP NOT NULL,
+    PRIMARY KEY(ID_TOKEN),
+    UNIQUE(TOKEN)
 );
 
-CREATE TABLE pin(
-                   id_pin SERIAL,
-                   pin VARCHAR(255)  NOT NULL,
-                   date_expiration TIMESTAMP NOT NULL,
-                   PRIMARY KEY(id_pin)
+CREATE TABLE IF NOT EXISTS PIN(
+    ID_PIN SERIAL,
+    PIN VARCHAR(255) NOT NULL,
+    DATE_EXPIRATION TIMESTAMP NOT NULL,
+    PRIMARY KEY(ID_PIN)
 );
 
-CREATE TABLE tentative_connection(
-                                    id_tentative_connection SERIAL,
-                                    nombre INTEGER NOT NULL,
-                                    PRIMARY KEY(id_tentative_connection)
+CREATE TABLE IF NOT EXISTS TENTATIVE_CONNECTION(
+    ID_TENTATIVE_CONNECTION SERIAL,
+    NOMBRE INTEGER NOT NULL,
+    PRIMARY KEY(ID_TENTATIVE_CONNECTION)
 );
 
-CREATE TABLE utilisateur(
-                           id_utilisateur SERIAL,
-                           pseudo VARCHAR(50)  NOT NULL,
-                           email VARCHAR(100)  NOT NULL,
-                           password VARCHAR(255)  NOT NULL,
-                           id_tentative_connection INTEGER NOT NULL,
-                           id_pin INTEGER,
-                           id_token INTEGER,
-                           id_role INTEGER NOT NULL,
-                           PRIMARY KEY(id_utilisateur),
-                           UNIQUE(id_tentative_connection),
-                           UNIQUE(email),
-                           FOREIGN KEY(id_tentative_connection) REFERENCES tentative_connection(id_tentative_connection),
-                           FOREIGN KEY(id_pin) REFERENCES pin(id_pin),
-                           FOREIGN KEY(id_token) REFERENCES token(id_token),
-                           FOREIGN KEY(id_role) REFERENCES role(id_role)
+CREATE TABLE IF NOT EXISTS UTILISATEUR(
+    ID_UTILISATEUR SERIAL,
+    PSEUDO VARCHAR(50) NOT NULL,
+    EMAIL VARCHAR(100) NOT NULL,
+    PASSWORD VARCHAR(255) NOT NULL,
+    ID_TENTATIVE_CONNECTION INTEGER NOT NULL,
+    ID_PIN INTEGER,
+    ID_TOKEN INTEGER,
+    ID_ROLE INTEGER NOT NULL,
+    PRIMARY KEY(ID_UTILISATEUR),
+    UNIQUE(ID_TENTATIVE_CONNECTION),
+    UNIQUE(EMAIL),
+    FOREIGN KEY(ID_TENTATIVE_CONNECTION) REFERENCES TENTATIVE_CONNECTION(ID_TENTATIVE_CONNECTION),
+    FOREIGN KEY(ID_PIN) REFERENCES PIN(ID_PIN),
+    FOREIGN KEY(ID_TOKEN) REFERENCES TOKEN(ID_TOKEN),
+    FOREIGN KEY(ID_ROLE) REFERENCES ROLE(ID_ROLE)
 );
+
+INSERT INTO role (name) VALUES ('GUEST');
