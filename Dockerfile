@@ -1,12 +1,16 @@
-# Étape 1 : build (optionnel si vous avez déjà votre JAR localement)
-FROM eclipse-temurin:17-jdk-alpine as builder
-WORKDIR /app
-COPY . .
-RUN ./mvnw clean package -DskipTests
 
-# Étape 2 : image finale
-FROM eclipse-temurin:17-jre-alpine
+# Utiliser l'image Eclipse Temurin pour Java 17
+FROM eclipse-temurin:17-jdk
+
+# Créer un répertoire pour l'application
 WORKDIR /app
-COPY --from=builder /app/target/utilisateur-0.0.1-SNAPSHOT.jar app.jar
+
+# Copier le fichier JAR de l'application dans l'image
+COPY target/utilisateur-0.0.1-SNAPSHOT.jar app.jar
+
+# Exposer le port utilisé par l'application
 EXPOSE 8082
-ENTRYPOINT ["java","-jar","app.jar"]
+
+# Commande pour démarrer l'application
+ENTRYPOINT ["java", "-jar", "app.jar"]
+

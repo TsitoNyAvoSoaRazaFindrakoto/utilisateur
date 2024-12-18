@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   database:
     image: postgres:15-alpine
@@ -15,9 +17,7 @@ services:
       - ./init-scripts:/docker-entrypoint-initdb.d  # Scripts d'initialisation SQL
 
   app:
-    build:
-      context: .  # Répertoire où se trouve le Dockerfile
-      dockerfile: Dockerfile  # Nom du Dockerfile (par défaut "Dockerfile")
+    image: utilisateur-service:latest
     container_name: utilisateur-app
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
