@@ -33,7 +33,7 @@ public class Utilisateur {
     @JoinColumn(name = "id_token", referencedColumnName = "id_token")
     private Token token;
 
-    @OneToOne(optional = false,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+		@ManyToOne(optional = false)
     @JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
     private Role role;
 

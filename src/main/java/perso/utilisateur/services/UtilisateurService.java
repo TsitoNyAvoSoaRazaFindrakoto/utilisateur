@@ -17,10 +17,9 @@ import java.time.LocalDateTime;
 @Service
 public class UtilisateurService {
     private UtilisateurRepo utilisateurRepo;
-
     private TentativeConnectionService tentativeConnectionService;
-
     private RoleService roleService;
+		private TokenService tokenService;
 
     private MailService mailService;
 
@@ -31,7 +30,7 @@ public class UtilisateurService {
         this.mailService = mailService;
     }
 
-    public Utilisateur findByEmail(String email)throws RuntimeException{
+		public Utilisateur findByEmail(String email)throws RuntimeException{
         return utilisateurRepo.findByEmail(email).orElseThrow(()->new RuntimeException("Email inexistante"));
     }
 
@@ -43,6 +42,8 @@ public class UtilisateurService {
             utilisateur.setPin();
             mailService.sendEmail(utilisateur,utilisateur.getPin().getPinValue());
             this.save(utilisateur);
+
+            tokenService.createUserToken(utilisateur);
             return new ResponseJSON("Login valide",200,utilisateur.getIdUtilisateur());
         }
         throw new PasswordInvalidException(utilisateur);
