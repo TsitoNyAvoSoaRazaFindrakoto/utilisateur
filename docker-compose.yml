@@ -1,5 +1,3 @@
-version: '3.8' # Version de Docker Compose
-
 services:
   app:
     build:
@@ -11,7 +9,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/utilisateur # URL de la base de données
       SPRING_DATASOURCE_USERNAME: postgres # Nom d'utilisateur pour PostgreSQL
-      SPRING_DATASOURCE_PASSWORD: fifaliana # Mot de passe pour PostgreSQL
+      SPRING_DATASOURCE_PASSWORD: fifaliana # Mot de passe pour PostgreSQLZZ
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD} # Chargé depuis le fichier .env
     ports:
       - "8082:8082" # Mappe le port 8082 de l'application au port 8082 de la machine hôte
@@ -27,6 +25,7 @@ services:
       - "5432:5432" # Mappe le port 5432 de PostgreSQL au port 5432 de la machine hôte
     volumes:
       - postgres_data:/var/lib/postgresql/data # Volume pour stocker les données de PostgreSQL
+      - ./init-scripts:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data: # Volume nommé pour persister les données de PostgreSQL

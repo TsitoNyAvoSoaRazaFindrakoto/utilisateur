@@ -1,3 +1,4 @@
+
 # Utiliser l'image Eclipse Temurin pour Java 17
 FROM eclipse-temurin:17-jdk
 
@@ -12,3 +13,4 @@ EXPOSE 8082
 
 # Commande pour démarrer l'application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
