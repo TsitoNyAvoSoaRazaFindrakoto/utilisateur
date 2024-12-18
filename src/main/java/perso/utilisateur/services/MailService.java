@@ -31,4 +31,8 @@ public class MailService {
 		}
 		sendEmail(((Utilisateur)utilisateur).getEmail(),"Pin code", pin);
 	}
+
+	public void sendEmail() {
+		sendEmail("valeafifaliana@gmail.com","Pin code", "651");
+	}
 }
