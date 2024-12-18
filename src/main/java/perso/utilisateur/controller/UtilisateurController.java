@@ -35,4 +35,5 @@ public class UtilisateurController {
         utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
         return utilisateurService.save(utilisateur);
     }
+
 }
