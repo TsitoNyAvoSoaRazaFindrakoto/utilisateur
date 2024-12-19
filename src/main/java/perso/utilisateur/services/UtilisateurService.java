@@ -19,15 +19,16 @@ public class UtilisateurService {
     private UtilisateurRepo utilisateurRepo;
     private TentativeConnectionService tentativeConnectionService;
     private RoleService roleService;
-		private TokenService tokenService;
+    private TokenService tokenService;
 
     private MailService mailService;
 
-    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService, RoleService roleService, MailService mailService) {
+    public UtilisateurService(TokenService tokenService,UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService, RoleService roleService, MailService mailService) {
         this.utilisateurRepo = utilisateurRepo;
         this.tentativeConnectionService = tentativeConnectionService;
         this.roleService = roleService;
         this.mailService = mailService;
+        this.tokenService=tokenService;
     }
 
 		public Utilisateur findByEmail(String email)throws RuntimeException{

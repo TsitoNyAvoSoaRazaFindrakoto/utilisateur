@@ -13,10 +13,13 @@ import perso.utilisateur.repositories.UtilisateurRepo;
 
 @Service
 public class TokenService {
-	@Autowired
-	private TokenRepo tokenRepo;
-	@Autowired
-	private UtilisateurRepo utilisateurRepo;
+	private final TokenRepo tokenRepo;
+	private final UtilisateurRepo utilisateurRepo;
+
+	public TokenService(TokenRepo tokenRepo, UtilisateurRepo utilisateurRepo) {
+		this.tokenRepo = tokenRepo;
+		this.utilisateurRepo = utilisateurRepo;
+	}
 
 	private Token createToken(){
 		Token t = new Token();
@@ -46,14 +49,14 @@ public class TokenService {
 	}
 
 	@Transactional
-	void deleteUserToken(Utilisateur u){
+	public void deleteUserToken(Utilisateur u){
 		Token oldToken = u.getToken();
 		tokenRepo.delete(oldToken);
 		u.setToken(null);
 	}
 
 	@Transactional
-	Token assignUserToken(Utilisateur u){
+	public Token assignUserToken(Utilisateur u){
 		Token newT = createToken();
 		u.setToken(newT);
 		utilisateurRepo.save(u);

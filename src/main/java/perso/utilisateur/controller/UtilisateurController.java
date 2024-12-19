@@ -23,8 +23,8 @@ import perso.utilisateur.util.SecurityUtil;
 @Tag(name = "Utilisateur", description = "API pour gérer les utilisateurs")
 public class UtilisateurController {
 
-    private UtilisateurService utilisateurService;
-    private TokenService tokenService;
+    private final UtilisateurService utilisateurService;
+    private final TokenService tokenService;
 
     public UtilisateurController(UtilisateurService utilisateurService, TokenService tokenService) {
         this.utilisateurService = utilisateurService;
