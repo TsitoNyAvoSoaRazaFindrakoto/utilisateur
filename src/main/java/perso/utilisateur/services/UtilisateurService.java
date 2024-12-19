@@ -6,7 +6,6 @@ import perso.utilisateur.exception.ConnectionAttemptException;
 import perso.utilisateur.exception.PasswordInvalidException;
 import perso.utilisateur.exception.WrongPinException;
 import perso.utilisateur.models.TentativeConnection;
-import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
 import perso.utilisateur.util.SecurityUtil;
@@ -76,10 +75,10 @@ public class UtilisateurService {
         throw new WrongPinException(utilisateur);
     }
 
-    public ResponseJSON loginPin(String pin,Integer idUtilisateur){
+    public ResponseJSON loginPin(String pin,String tokenUtilisateur){
         Utilisateur utilisateur=null;
         try{
-            utilisateur=this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException());
+            utilisateur=this.utilisateurRepo.findUtilisteurFromTokenValue(tokenUtilisateur).orElseThrow(()->new RuntimeException());
             return loginPin(pin,utilisateur);
         }
         catch (WrongPinException ex){

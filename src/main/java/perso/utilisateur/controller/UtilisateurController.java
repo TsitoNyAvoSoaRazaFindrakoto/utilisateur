@@ -6,19 +6,18 @@ import perso.utilisateur.dto.LoginDTO;
 import perso.utilisateur.dto.PinLoginDTO;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.models.Utilisateur;
-import perso.utilisateur.services.TokenService;
+import perso.utilisateur.services.InscriptionService;
 import perso.utilisateur.services.UtilisateurService;
-import perso.utilisateur.util.SecurityUtil;
 
 @RestController
 @RequestMapping("/utilisateur")
 public class UtilisateurController {
     private UtilisateurService utilisateurService;
-		private TokenService tokenService;
-  
-    public UtilisateurController(UtilisateurService utilisateurService, TokenService tokenService) {
+		private InscriptionService inscriptionService;
+
+		public UtilisateurController(UtilisateurService utilisateurService, InscriptionService inscriptionService) {
 			this.utilisateurService = utilisateurService;
-			this.tokenService = tokenService;
+			this.inscriptionService = inscriptionService;
 		}
 
 		@PostMapping("/login")
@@ -28,17 +27,11 @@ public class UtilisateurController {
 
     @PostMapping("/login/pin")
     public ResponseJSON loginPin(@RequestBody PinLoginDTO pinLoginDTO){
-        return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getIdUtilisateur());
+        return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getTokenUtilisateur());
     }
 
     @PostMapping("/inscription")
     public Utilisateur inscription(@RequestBody InscriptionDTO inscriptionDTO){
-        Utilisateur utilisateur=new Utilisateur();
-        utilisateur.setPseudo(inscriptionDTO.getPseudo());
-        utilisateur.setEmail(inscriptionDTO.getEmail());
-        utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
-        utilisateur = utilisateurService.save(utilisateur);
-				tokenService.createUserToken(utilisateur);
-				return utilisateur;
+			return null;
     }
 }

@@ -1,0 +1,1 @@
+login = envoi email pin de confirmation a quelqu'un
