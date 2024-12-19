@@ -13,21 +13,23 @@ import perso.utilisateur.repositories.UtilisateurRepo;
 import perso.utilisateur.util.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UtilisateurService {
     private UtilisateurRepo utilisateurRepo;
     private TentativeConnectionService tentativeConnectionService;
     private RoleService roleService;
-		private TokenService tokenService;
+    private TokenService tokenService;
 
     private MailService mailService;
 
-    public UtilisateurService(UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService, RoleService roleService, MailService mailService) {
+    public UtilisateurService(TokenService tokenService,UtilisateurRepo utilisateurRepo, TentativeConnectionService tentativeConnectionService, RoleService roleService, MailService mailService) {
         this.utilisateurRepo = utilisateurRepo;
         this.tentativeConnectionService = tentativeConnectionService;
         this.roleService = roleService;
         this.mailService = mailService;
+        this.tokenService=tokenService;
     }
 
 		public Utilisateur findByEmail(String email)throws RuntimeException{
@@ -54,6 +56,28 @@ public class UtilisateurService {
         return utilisateurRepo.save(utilisateur);
     }
 
+    public Utilisateur getById(int idUtilisateur){
+        return utilisateurRepo.getById(idUtilisateur);
+    }
+
+    public ResponseJSON getByIdWithToken(int idUtilisateur) {
+        Optional<Utilisateur> utilisateurOpt = utilisateurRepo.findById(idUtilisateur);
+
+        if (utilisateurOpt.isEmpty()) {
+            return new ResponseJSON("Utilisateur introuvable", 404, null);
+        }
+
+        Utilisateur utilisateur = utilisateurOpt.get();
+
+//        Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
+//
+//        if (token == null) {
+//            return new ResponseJSON("Token expiré", 401, null);
+//        }
+        return new ResponseJSON("Utilisateur bien récupéré", 200, utilisateur);
+    }
+
+
     public ResponseJSON login(String email, String password)throws RuntimeException{
         try{
             return this.testLogin(email,password);
@@ -62,7 +86,7 @@ public class UtilisateurService {
             return this.increaseAttempt(exception.getUtilisateur(),exception.getMessage());
         }
         catch (RuntimeException exception){
-            return new ResponseJSON(exception.getMessage(),500);
+            return new ResponseJSON(exception.getMessage(),401);
         }
     }
 
@@ -73,6 +97,7 @@ public class UtilisateurService {
         catch (ConnectionAttemptException connectionException){
             return new ResponseJSON(connectionException.getMessage(),200,utilisateur.getIdUtilisateur());
         }
+
         finally {
             this.save(utilisateur);
         }
@@ -105,7 +130,7 @@ public class UtilisateurService {
             return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         }
         catch (RuntimeException ex){
-            return new ResponseJSON(ex.getMessage(),500);
+            return new ResponseJSON(ex.getMessage(),401);
         }
     }
 }

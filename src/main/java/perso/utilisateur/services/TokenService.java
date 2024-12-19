@@ -13,10 +13,13 @@ import perso.utilisateur.repositories.UtilisateurRepo;
 
 @Service
 public class TokenService {
-	@Autowired
-	private TokenRepo tokenRepo;
-	@Autowired
-	private UtilisateurRepo utilisateurRepo;
+	private final TokenRepo tokenRepo;
+	private final UtilisateurRepo utilisateurRepo;
+
+	public TokenService(TokenRepo tokenRepo, UtilisateurRepo utilisateurRepo) {
+		this.tokenRepo = tokenRepo;
+		this.utilisateurRepo = utilisateurRepo;
+	}
 
 	private Token createToken(){
 		Token t = new Token();
