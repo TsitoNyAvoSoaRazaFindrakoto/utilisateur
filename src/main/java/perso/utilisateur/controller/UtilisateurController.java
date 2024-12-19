@@ -6,17 +6,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import perso.utilisateur.dto.InscriptionDTO;
 import perso.utilisateur.dto.LoginDTO;
 import perso.utilisateur.dto.PinLoginDTO;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.services.InscriptionService;
+import perso.utilisateur.services.MailService;
 import perso.utilisateur.services.TokenService;
 import perso.utilisateur.services.UtilisateurService;
+import perso.utilisateur.util.SecurityUtil;
 
 @RestController
 @RequestMapping("/utilisateur")
@@ -24,11 +24,16 @@ import perso.utilisateur.services.UtilisateurService;
 public class UtilisateurController {
 	private InscriptionService inscriptionService;
 
+    private MailService mailService;
+
     private final UtilisateurService utilisateurService;
     private final TokenService tokenService;
 
-    public UtilisateurController(InscriptionService inscriptionService, UtilisateurService utilisateurService, TokenService tokenService) {
+
+
+    public UtilisateurController(InscriptionService inscriptionService, MailService mailService, UtilisateurService utilisateurService, TokenService tokenService) {
         this.inscriptionService = inscriptionService;
+        this.mailService = mailService;
         this.utilisateurService = utilisateurService;
         this.tokenService = tokenService;
     }
@@ -101,16 +106,48 @@ public class UtilisateurController {
 			description = "Inscription d'une utilisateur",
 			required = false,
 			content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
-) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO ){
+    ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO ){
 			return inscriptionService.sendValidationMail(Utilisateur.from(inscriptionDTO));
     }
 
-
+    @Operation(
+            summary = "Modification des information d'un utilisateur",
+            description = "Mise a jours de l' information d'un utilisateur",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Utilisateur inscrit avec succès",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    )
+            }
+    )
     @PostMapping("/update")
     public ResponseJSON update(@RequestBody Utilisateur utilisateur){
-        utilisateur = utilisateurService.save(utilisateur);
-        return new ResponseJSON("mise a jour valide",200,utilisateur);
     }
+
+    @Operation(
+            summary = "Recuperation d'une utilisateur",
+            description = "Prendre les information d'une utilisateur",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Utilisateur bien recuperé",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Token expire",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    )
+            }
+    )
+    @GetMapping("/getUtilisateur")
+    public ResponseJSON getUtilisateur(@Parameter(description = "Identifiant unique de l'utilisateur", example = "123")
+                                           @PathVariable("idUtilisateur") int idUtilisateur){
+        return utilisateurService.getByIdWithToken(idUtilisateur);
+    }
+
+
     
 }
 

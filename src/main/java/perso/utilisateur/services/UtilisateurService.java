@@ -55,6 +55,19 @@ public class UtilisateurService {
         return utilisateurRepo.save(utilisateur);
     }
 
+    public Utilisateur getById(int idUtilisateur){
+        return utilisateurRepo.getById(idUtilisateur);
+    }
+
+    public ResponseJSON getByIdWithToken(int idUtilisateur){
+        Utilisateur utilisateur = this.getById(idUtilisateur);
+        Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
+        if ( token == null){
+            return new ResponseJSON("Token expirée",401,null);
+        }
+        return new ResponseJSON("utilisateur bien recuperer",200,utilisateur);
+    }
+
     public ResponseJSON login(String email, String password)throws RuntimeException{
         try{
             return this.testLogin(email,password);
