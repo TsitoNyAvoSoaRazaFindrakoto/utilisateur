@@ -53,9 +53,7 @@ public class UtilisateurController {
             required = false,
             content = @Content(schema = @Schema(implementation = LoginDTO.class))
     ) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
-        return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
-        //return new ResponseJSON("ok",200,loginDTO);
-    }
+
 
     @Operation(
             summary = "Connexion utilisateur par PIN",
@@ -122,5 +120,6 @@ public class UtilisateurController {
         tokenService.createUserToken(utilisateur);
         return utilisateur;
     }
+
 }
 
