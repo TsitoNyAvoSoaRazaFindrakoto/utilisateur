@@ -54,6 +54,7 @@ public class UtilisateurController {
             content = @Content(schema = @Schema(implementation = LoginDTO.class))
     ) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
         return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
+        //return new ResponseJSON("ok",200,loginDTO);
     }
 
     @Operation(

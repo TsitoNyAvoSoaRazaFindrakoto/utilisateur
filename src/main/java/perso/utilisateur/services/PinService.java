@@ -14,13 +14,6 @@ public class PinService {
         this.pinRepo = pinRepo;
     }
 
-    public String generatePin(Utilisateur utilisateur){
-        String pinRaw= SecurityUtil.generatePin();
-        Pin pin=new Pin(SecurityUtil.hashPassword(pinRaw));
-        utilisateur.setPin(pin);
-        return pinRaw;
-    }
-
     public Pin save(Pin pin){
         return this.pinRepo.save(pin);
     }
