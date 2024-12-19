@@ -41,11 +41,11 @@ public class UtilisateurService {
             Token token=new Token();
             utilisateur.setToken(token);
             utilisateur.setPin();
-            mailService.sendEmail(utilisateur,utilisateur.getPin().getPinValue());
+            mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
             this.save(utilisateur);
 
             tokenService.createUserToken(utilisateur);
-            return new ResponseJSON("Login valide",200,utilisateur.getIdUtilisateur());
+            return new ResponseJSON("Login valide",200,utilisateur.getToken().getTokenValue());
         }
         throw new PasswordInvalidException(utilisateur);
     }
@@ -94,10 +94,10 @@ public class UtilisateurService {
         throw new WrongPinException(utilisateur);
     }
 
-    public ResponseJSON loginPin(String pin,Integer idUtilisateur){
+    public ResponseJSON loginPin(String pin,String tokenUtilisateur){
         Utilisateur utilisateur=null;
         try{
-            utilisateur=this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException());
+            utilisateur=this.utilisateurRepo.findUtilisteurFromTokenValue(tokenUtilisateur).orElseThrow(()->new RuntimeException());
             return loginPin(pin,utilisateur);
         }
         catch (PinExpiredException ex){

@@ -14,50 +14,38 @@ import perso.utilisateur.dto.LoginDTO;
 import perso.utilisateur.dto.PinLoginDTO;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.models.Utilisateur;
+import perso.utilisateur.services.InscriptionService;
 import perso.utilisateur.services.TokenService;
 import perso.utilisateur.services.UtilisateurService;
-import perso.utilisateur.util.SecurityUtil;
 
 @RestController
 @RequestMapping("/utilisateur")
 @Tag(name = "Utilisateur", description = "API pour gérer les utilisateurs")
 public class UtilisateurController {
+	private InscriptionService inscriptionService;
 
     private final UtilisateurService utilisateurService;
     private final TokenService tokenService;
 
-    public UtilisateurController(UtilisateurService utilisateurService, TokenService tokenService) {
+    public UtilisateurController(InscriptionService inscriptionService, UtilisateurService utilisateurService, TokenService tokenService) {
+        this.inscriptionService = inscriptionService;
         this.utilisateurService = utilisateurService;
         this.tokenService = tokenService;
     }
 
-    @Operation(
-            summary = "Connexion utilisateur",
-            description = "Permet à un utilisateur de se connecter avec son email et son mot de passe",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Verification code PIN",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Email non reconnue ou mot de passe incorrecte",
-                            content = @Content(mediaType = "application/json",schema = @Schema(implementation = ResponseJSON.class))
-                    )
-            }
-    )
-    @PostMapping("/login")
-    public ResponseJSON login(@RequestBody(
-            description = "Email et mot de passe",
-            required = false,
-            content = @Content(schema = @Schema(implementation = LoginDTO.class))
-    ) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
-        return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
-        //return new ResponseJSON("ok",200,loginDTO);
-    }
 
-    @Operation(
+    @Operation(summary = "Connexion utilisateur", description = "Permet à un utilisateur de se connecter avec son email et son mot de passe", responses = {
+			@ApiResponse(responseCode = "200", description = "Verification code PIN", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))),
+			@ApiResponse(responseCode = "401", description = "Email non reconnue ou mot de passe incorrecte", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class)))
+	})
+	@PostMapping("/login")
+	public ResponseJSON login(
+			@RequestBody(description = "Email et mot de passe", required = false, content = @Content(schema = @Schema(implementation = LoginDTO.class))) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
+		return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
+		// return new ResponseJSON("ok",200,loginDTO);
+	}
+
+	@Operation(
             summary = "Connexion utilisateur par PIN",
             description = "Permet à un utilisateur de se connecter avec un PIN",
             responses = {
@@ -84,10 +72,10 @@ public class UtilisateurController {
             required = false,
             content = @Content(schema = @Schema(implementation = PinLoginDTO.class))
     ) @org.springframework.web.bind.annotation.RequestBody PinLoginDTO pinLoginDTO) {
-        return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getIdUtilisateur());
+        return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getTokenUtilisateur());
     }
 
-    @Operation(
+	@Operation(
             summary = "Inscription d'un utilisateur",
             description = "Enregistre un nouvel utilisateur et génère un token",
             responses = {
@@ -109,18 +97,11 @@ public class UtilisateurController {
             }
     )
     @PostMapping("/inscription")
-    public Utilisateur inscription(@RequestBody(
-            description = "Inscription d'une utilisateur",
-            required = false,
-            content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
-    ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO) {
-        Utilisateur utilisateur = new Utilisateur();
-        utilisateur.setPseudo(inscriptionDTO.getPseudo());
-        utilisateur.setEmail(inscriptionDTO.getEmail());
-        utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
-        utilisateur = utilisateurService.save(utilisateur);
-        tokenService.createUserToken(utilisateur);
-        return utilisateur;
+    public ResponseJSON inscription(@RequestBody(
+			description = "Inscription d'une utilisateur",
+			required = false,
+			content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
+) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO ){
+			return inscriptionService.sendValidationMail(Utilisateur.from(inscriptionDTO));
     }
 }
-

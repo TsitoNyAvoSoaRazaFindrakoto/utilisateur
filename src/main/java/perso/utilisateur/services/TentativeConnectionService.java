@@ -27,7 +27,7 @@ public class TentativeConnectionService {
         utilisateur.increaseNumberAttempt();
         if(utilisateur.getTentativeConnection().getNombre() % parameterSercurity.getNombreTentativeLimite() == 0){
             utilisateur.setPin();
-            mailService.sendEmail(utilisateur,utilisateur.getPin().getPinValue());
+            mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
             throw new ConnectionAttemptException();
         }
     }

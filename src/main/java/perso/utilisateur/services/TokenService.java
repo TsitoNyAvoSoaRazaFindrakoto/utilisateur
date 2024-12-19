@@ -23,7 +23,6 @@ public class TokenService {
 
 	private Token createToken(){
 		Token t = new Token();
-
 		return tokenRepo.save(t);
 	}
 
