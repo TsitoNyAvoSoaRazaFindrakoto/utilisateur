@@ -53,7 +53,7 @@ public class UtilisateurService {
             return this.increaseAttempt(exception.getUtilisateur(),exception.getMessage());
         }
         catch (RuntimeException exception){
-            return new ResponseJSON(exception.getMessage(),500);
+            return new ResponseJSON(exception.getMessage(),401);
         }
     }
 
@@ -65,7 +65,7 @@ public class UtilisateurService {
         catch (ConnectionAttemptException connectionException){
             return new ResponseJSON(connectionException.getMessage(),200,utilisateur.getIdUtilisateur());
         }
-        return new ResponseJSON(message,500);
+        return new ResponseJSON(message,400);
     }
 
     public ResponseJSON loginPin(String pin,Utilisateur utilisateur){
@@ -86,7 +86,7 @@ public class UtilisateurService {
             return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         }
         catch (RuntimeException ex){
-            return new ResponseJSON(ex.getMessage(),500);
+            return new ResponseJSON(ex.getMessage(),401);
         }
     }
 }
