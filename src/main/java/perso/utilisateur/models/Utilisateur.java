@@ -38,15 +38,24 @@ public class Utilisateur {
 	@JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
 	private Role role;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_tentative_connection", referencedColumnName = "id_tentative_connection")
-	private TentativeConnection tentativeConnection;
 
-	public static Utilisateur from(InscriptionDTO inscriptionDTO) {
-		Utilisateur utilisateur = new Utilisateur();
-		utilisateur.setPseudo(inscriptionDTO.getPseudo());
-		utilisateur.setEmail(inscriptionDTO.getEmail());
-		utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
-		return utilisateur;
-	}
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @JoinColumn(name = "id_tentative_connection")
+    private TentativeConnection tentativeConnection;
+
+    public void setPin(){
+        this.pin=new Pin(SecurityUtil.generatePin());
+    }
+
+    public void increaseNumberAttempt(){
+        this.tentativeConnection.setNombre(this.tentativeConnection.getNombre()+1);
+    }
+
+		public static Utilisateur from(InscriptionDTO inscriptionDTO) {
+			Utilisateur utilisateur = new Utilisateur();
+			utilisateur.setPseudo(inscriptionDTO.getPseudo());
+			utilisateur.setEmail(inscriptionDTO.getEmail());
+			utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
+			return utilisateur;
+		}
 }
