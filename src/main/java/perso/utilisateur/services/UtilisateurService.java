@@ -13,6 +13,7 @@ import perso.utilisateur.repositories.UtilisateurRepo;
 import perso.utilisateur.util.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UtilisateurService {
@@ -59,14 +60,23 @@ public class UtilisateurService {
         return utilisateurRepo.getById(idUtilisateur);
     }
 
-    public ResponseJSON getByIdWithToken(int idUtilisateur){
-        Utilisateur utilisateur = this.getById(idUtilisateur);
-        Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
-        if ( token == null){
-            return new ResponseJSON("Token expirée",401,null);
+    public ResponseJSON getByIdWithToken(int idUtilisateur) {
+        Optional<Utilisateur> utilisateurOpt = utilisateurRepo.findById(idUtilisateur);
+
+        if (utilisateurOpt.isEmpty()) {
+            return new ResponseJSON("Utilisateur introuvable", 404, null);
         }
-        return new ResponseJSON("utilisateur bien recuperer",200,utilisateur);
+
+        Utilisateur utilisateur = utilisateurOpt.get();
+
+//        Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
+//
+//        if (token == null) {
+//            return new ResponseJSON("Token expiré", 401, null);
+//        }
+        return new ResponseJSON("Utilisateur bien récupéré", 200, utilisateur);
     }
+
 
     public ResponseJSON login(String email, String password)throws RuntimeException{
         try{

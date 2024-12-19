@@ -1,6 +1,7 @@
 package perso.utilisateur.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -81,8 +82,8 @@ public class UtilisateurController {
     }
 
 	@Operation(
-            summary = "Inscription d'un utilisateur",
-            description = "Enregistre un nouvel utilisateur et génère un token",
+            summary = "Inscription ou modification d'un utilisateur",
+            description = "Enregistre ou modifier utilisateur et génère un token",
             responses = {
                     @ApiResponse(
                             responseCode = "201",
@@ -103,7 +104,7 @@ public class UtilisateurController {
     )
     @PostMapping("/inscription")
     public ResponseJSON inscription(@RequestBody(
-			description = "Inscription d'une utilisateur",
+			description = "Inscription ou modification d'une utilisateur",
 			required = false,
 			content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
     ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO ){
@@ -111,43 +112,33 @@ public class UtilisateurController {
     }
 
     @Operation(
-            summary = "Modification des information d'un utilisateur",
-            description = "Mise a jours de l' information d'un utilisateur",
+            summary = "Récupération d'un utilisateur",
+            description = "Permet de récupérer les informations d'un utilisateur en utilisant son identifiant unique",
             responses = {
                     @ApiResponse(
-                            responseCode = "201",
-                            description = "Utilisateur inscrit avec succès",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
-                    )
-            }
-    )
-    @PostMapping("/update")
-    public ResponseJSON update(@RequestBody Utilisateur utilisateur){
-    }
-
-    @Operation(
-            summary = "Recuperation d'une utilisateur",
-            description = "Prendre les information d'une utilisateur",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Utilisateur bien recuperé",
+                            responseCode = "200",
+                            description = "Utilisateur récupéré avec succès",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Token expire",
+                            description = "Token expiré ou non valide",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Utilisateur introuvable",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
                     )
             }
     )
-    @GetMapping("/getUtilisateur")
-    public ResponseJSON getUtilisateur(@Parameter(description = "Identifiant unique de l'utilisateur", example = "123")
-                                           @PathVariable("idUtilisateur") int idUtilisateur){
+    @GetMapping("/{idUtilisateur}")
+    public ResponseJSON getUtilisateur(
+            @Parameter(description = "Identifiant unique de l'utilisateur", example = "123", required = true)
+            @PathVariable("idUtilisateur") int idUtilisateur
+    ) {
         return utilisateurService.getByIdWithToken(idUtilisateur);
     }
 
-
-    
 }
 
