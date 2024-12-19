@@ -65,7 +65,7 @@ public class UtilisateurController {
             required = false,
             content = @Content(schema = @Schema(implementation = PinLoginDTO.class))
     ) @org.springframework.web.bind.annotation.RequestBody PinLoginDTO pinLoginDTO) {
-        return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getIdUtilisateur());
+        return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getTokenUtilisateur());
     }
 
 	@Operation(
