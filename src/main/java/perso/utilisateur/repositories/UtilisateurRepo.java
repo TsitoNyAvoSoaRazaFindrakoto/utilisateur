@@ -18,7 +18,8 @@ public interface UtilisateurRepo extends JpaRepository<Utilisateur, Integer> {
 
 	@Query(value = "SELECT u.* " +
 			"FROM utilisateur u " +
-			"where u.id_token =  (select id_token from token t where t.token = :tokenValue)", nativeQuery = true)
+			"INNER JOIN token t ON u.id_token = t.id_token " +
+			"WHERE t.token = :tokenValue", nativeQuery = true)
 	Optional<Utilisateur> findUtilisateurByToken(@Param("tokenValue") String tokenValue);
 
 }
