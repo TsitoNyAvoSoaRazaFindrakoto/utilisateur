@@ -14,14 +14,14 @@ import perso.utilisateur.util.SecurityUtil;
 @RequestMapping("/utilisateur")
 public class UtilisateurController {
     private UtilisateurService utilisateurService;
-		private TokenService tokenService;
+    private TokenService tokenService;
   
     public UtilisateurController(UtilisateurService utilisateurService, TokenService tokenService) {
 			this.utilisateurService = utilisateurService;
 			this.tokenService = tokenService;
-		}
+    }
 
-		@PostMapping("/login")
+    @PostMapping("/login")
     public ResponseJSON login(@RequestBody LoginDTO loginDTO){
         return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
         //return new ResponseJSON("ok",200,loginDTO);
@@ -30,16 +30,5 @@ public class UtilisateurController {
     @PostMapping("/login/pin")
     public ResponseJSON loginPin(@RequestBody PinLoginDTO pinLoginDTO){
         return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getIdUtilisateur());
-    }
-
-    @PostMapping("/inscription")
-    public Utilisateur inscription(@RequestBody InscriptionDTO inscriptionDTO){
-        Utilisateur utilisateur=new Utilisateur();
-        utilisateur.setPseudo(inscriptionDTO.getPseudo());
-        utilisateur.setEmail(inscriptionDTO.getEmail());
-        utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
-        utilisateur = utilisateurService.save(utilisateur);
-				tokenService.createUserToken(utilisateur);
-				return utilisateur;
     }
 }
