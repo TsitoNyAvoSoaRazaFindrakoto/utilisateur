@@ -95,7 +95,7 @@ public class UtilisateurService {
     public ResponseJSON loginPin(String pin,String tokenUtilisateur){
         Utilisateur utilisateur=null;
         try{
-            utilisateur=this.utilisateurRepo.findUtilisteurFromTokenValue(tokenUtilisateur).orElseThrow(()->new RuntimeException());
+            utilisateur=this.utilisateurRepo.findUtilisateurByToken(tokenUtilisateur).orElseThrow(()->new RuntimeException());
             return loginPin(pin,utilisateur);
         }
         catch (PinExpiredException ex){

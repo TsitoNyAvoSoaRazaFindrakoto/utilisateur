@@ -22,9 +22,6 @@ public class InscriptionService {
 	@Autowired private PinService pinService;
 	@Autowired private TentativeRepo tentativeRepo;
 
-	Utilisateur createUser(InscriptionDTO inscriptionDTO){
-		return utilisateurRepo.save(Utilisateur.from(inscriptionDTO));
-	}
 
 	@Transactional
 	public ResponseJSON sendValidationMail(Utilisateur u){
@@ -38,12 +35,12 @@ public class InscriptionService {
 		
 		u.setPin(pin);
 		u.setTentativeConnection(tentativeConnection);
-		
-		Token t = tokenService.createUserToken(u);
 
+		u = utilisateurRepo.save(u);
+		
 		mailService.sendPinEmail(u, p);
 		
-		return new ResponseJSON("email envoye",200,t.getTokenValue());
+		return new ResponseJSON("email envoye",200,u.getToken().getTokenValue());
 	}
 
 }
