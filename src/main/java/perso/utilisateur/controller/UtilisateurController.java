@@ -32,7 +32,7 @@ public class UtilisateurController {
     }
 
     @PostMapping("/inscription")
-    public Utilisateur inscription(@RequestBody InscriptionDTO inscriptionDTO){
-			return null;
+    public ResponseJSON inscription(@RequestBody InscriptionDTO inscriptionDTO){
+			return inscriptionService.sendValidationMail(Utilisateur.from(inscriptionDTO));
     }
 }

@@ -29,12 +29,9 @@ public class InscriptionService {
 	public ResponseJSON sendValidationMail(Utilisateur u){
 		Token t = tokenService.createUserToken(u);
 		String p = SecurityUtil.generatePin();
-		u.setPin(p);
-		mailService.sendEmail(u, p);
-		return new ResponseJSON("email envoye",200);
+		u.setPin(new Pin(p));
+		mailService.sendPinEmail(u, p);
+		return new ResponseJSON("email envoye",200,t.getTokenValue());
 	}
 
-	public Token validateInscriptionPin(String pin){
-		
-	}
 }

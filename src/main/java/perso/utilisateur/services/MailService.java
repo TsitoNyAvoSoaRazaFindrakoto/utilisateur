@@ -15,6 +15,9 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
+import perso.utilisateur.util.MailType;
+
+
 
 @Service
 public class MailService {
@@ -34,7 +37,7 @@ public class MailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(mailType.getTargetEmail());
-            helper.setSubject(mailType.subject);
+            helper.setSubject(mailType.getSubject());
 
             // Set the HTML content
             helper.setText(htmlContent, true); // Enable the second parameter for HTML
@@ -47,53 +50,11 @@ public class MailService {
         }
     }
 
-    public void sendEmail(Object utilisateur, String pin) {
+    public void sendPinEmail(Object utilisateur, String pin) {
         if (utilisateur instanceof Integer) {
             utilisateur = utilisateurRepo.findById((Integer) utilisateur).orElseThrow(
                 () -> new IllegalArgumentException("Utilisateur not found"));
         }
         sendEmail(MailType.pin((Utilisateur) utilisateur,pin,tokenService));
-    }
-}
-
-class MailType {
-    String path, subject;
-		Utilisateur to; 
-    private HashMap<String, Object> data = new HashMap<>();
-
-    public static MailType pin(Utilisateur to,String pin,TokenService tokenService) {
-        MailType mt = new MailType();
-				mt.to = to;
-        mt.path = "mail/PinMail.html";
-				mt.subject = "Login Validation";
-				mt.addData("link", "" + tokenService.createUserToken(to).getTokenValue());
-        mt.data.put("pin", pin);
-				
-        return mt;
-    }
-
-		public String getTargetEmail(){
-			return to.getEmail();
-		}
-
-		public void addData(String key, Object value) {
-			data.put(key, value);
-		}
-
-    public String buildHtml() {
-        try {
-            // Read the template file
-            String template = Files.readString(Path.of(path));
-
-            // Replace placeholders in the template with data
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                String placeholder = "\\{\\{" + entry.getKey() + "\\}\\}"; // Matches {{key}}
-                template = template.replaceAll(placeholder, entry.getValue().toString());
-            }
-            return template;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 }

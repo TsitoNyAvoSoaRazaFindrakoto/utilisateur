@@ -7,6 +7,7 @@ import perso.utilisateur.exception.PasswordInvalidException;
 import perso.utilisateur.exception.PinExpiredException;
 import perso.utilisateur.exception.WrongPinException;
 import perso.utilisateur.models.TentativeConnection;
+import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
 import perso.utilisateur.util.SecurityUtil;
@@ -39,11 +40,11 @@ public class UtilisateurService {
             Token token=new Token();
             utilisateur.setToken(token);
             utilisateur.setPin();
-            mailService.sendEmail(utilisateur,utilisateur.getPin().getPinValue());
+            mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
             this.save(utilisateur);
 
             tokenService.createUserToken(utilisateur);
-            return new ResponseJSON("Login valide",200,utilisateur.getIdUtilisateur());
+            return new ResponseJSON("Login valide",200,utilisateur.getToken().getTokenValue());
         }
         throw new PasswordInvalidException(utilisateur);
     }
