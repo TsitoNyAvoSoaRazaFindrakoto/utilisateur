@@ -104,4 +104,13 @@ public class UtilisateurController {
 ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO ){
 			return inscriptionService.sendValidationMail(Utilisateur.from(inscriptionDTO));
     }
+
+
+    @PostMapping("/update")
+    public ResponseJSON update(@RequestBody Utilisateur utilisateur){
+        utilisateur = utilisateurService.save(utilisateur);
+        return new ResponseJSON("mise a jour valide",200,utilisateur);
+    }
+    
 }
+
