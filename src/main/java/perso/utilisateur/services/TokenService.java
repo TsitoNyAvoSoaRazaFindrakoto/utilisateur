@@ -47,16 +47,16 @@ public class TokenService {
 	@Transactional 
 	public Token createUserToken(Utilisateur u){
 		if (u.getToken() != null) {
-			deleteUserToken(u);
+			return updateUserToken(u);
 		}
 		return assignUserToken(u);
 	}
 
 	@Transactional
-	public void deleteUserToken(Utilisateur u){
+	public Token updateUserToken(Utilisateur u){
 		Token oldToken = u.getToken();
-		tokenRepo.delete(oldToken);
-		u.setToken(null);
+		oldToken.updateToken();
+		return tokenRepo.save(oldToken);
 	}
 
 	@Transactional

@@ -27,4 +27,9 @@ public class Token {
 		this.setTokenValue(SecurityUtil.generateToken());
 		this.setDateExpiration(LocalDateTime.now().plusHours(1));
 	}
+
+	public void updateToken(){
+		this.setTokenValue(SecurityUtil.generateToken());
+		this.setDateExpiration(LocalDateTime.now().plusHours(1));
+	}
 }
