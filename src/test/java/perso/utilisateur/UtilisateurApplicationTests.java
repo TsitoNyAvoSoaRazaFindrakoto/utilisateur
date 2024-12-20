@@ -24,7 +24,7 @@ class UtilisateurApplicationTests {
 	@Test
 	void testInscription(){
 		InscriptionDTO insdto = new InscriptionDTO();
-		insdto.setEmail("tsitonyavo@gmil.com");
+		insdto.setEmail("tsitonyavo@gmail.com");
 		insdto.setPseudo("tsito");
 		insdto.setPassword("cheh");
 
