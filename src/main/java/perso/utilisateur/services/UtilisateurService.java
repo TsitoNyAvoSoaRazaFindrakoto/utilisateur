@@ -6,7 +6,6 @@ import perso.utilisateur.exception.ConnectionAttemptException;
 import perso.utilisateur.exception.PasswordInvalidException;
 import perso.utilisateur.exception.PinExpiredException;
 import perso.utilisateur.exception.WrongPinException;
-import perso.utilisateur.models.TentativeConnection;
 import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
@@ -39,13 +38,9 @@ public class UtilisateurService {
     public ResponseJSON testLogin(String email,String password)throws RuntimeException{
         Utilisateur utilisateur=this.findByEmail(email);
         if(SecurityUtil.matchPassword(password,utilisateur.getPassword())){
-            Token token=new Token();
-            utilisateur.setToken(token);
             utilisateur.setPin();
             mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
-            this.save(utilisateur);
-
-            tokenService.createUserToken(utilisateur);
+            utilisateur = this.save(utilisateur);
             return new ResponseJSON("Login valide",200,utilisateur.getToken().getTokenValue());
         }
         throw new PasswordInvalidException(utilisateur);
@@ -54,10 +49,6 @@ public class UtilisateurService {
     public Utilisateur save(Utilisateur utilisateur){
         utilisateur.setRole(this.roleService.findById(1));
         return utilisateurRepo.save(utilisateur);
-    }
-
-    public Utilisateur getById(int idUtilisateur){
-        return utilisateurRepo.getById(idUtilisateur);
     }
 
     public ResponseJSON getByIdWithToken(int idUtilisateur) {
@@ -69,11 +60,11 @@ public class UtilisateurService {
 
         Utilisateur utilisateur = utilisateurOpt.get();
 
-//        Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
-//
-//        if (token == null) {
-//            return new ResponseJSON("Token expiré", 401, null);
-//        }
+       Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
+
+       if (token == null) {
+           return new ResponseJSON("Token expiré", 401, null);
+       }
         return new ResponseJSON("Utilisateur bien récupéré", 200, utilisateur);
     }
 
@@ -110,9 +101,8 @@ public class UtilisateurService {
             if(utilisateur.getPin().getDateExpiration().isAfter(LocalDateTime.now())){
                 throw new PinExpiredException(utilisateur);
             }
-            utilisateur.setToken(new Token());
-            this.save(utilisateur);
-            return new ResponseJSON("Code pin valide",200,utilisateur.getToken().getTokenValue());
+            tokenService.reassignUserToken(utilisateur);
+            return new ResponseJSON("Code pin valide",200,utilisateur);
         }
         throw new WrongPinException(utilisateur);
     }
