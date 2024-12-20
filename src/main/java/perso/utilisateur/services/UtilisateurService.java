@@ -13,6 +13,7 @@ import perso.utilisateur.repositories.UtilisateurRepo;
 import perso.utilisateur.util.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UtilisateurService {
@@ -41,11 +42,11 @@ public class UtilisateurService {
             Token token=new Token();
             utilisateur.setToken(token);
             utilisateur.setPin();
-            mailService.sendEmail(utilisateur,utilisateur.getPin().getPinValue());
+            mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
             this.save(utilisateur);
 
             tokenService.createUserToken(utilisateur);
-            return new ResponseJSON("Login valide",200,utilisateur.getIdUtilisateur());
+            return new ResponseJSON("Login valide",200,utilisateur.getToken().getTokenValue());
         }
         throw new PasswordInvalidException(utilisateur);
     }
@@ -54,6 +55,28 @@ public class UtilisateurService {
         utilisateur.setRole(this.roleService.findById(1));
         return utilisateurRepo.save(utilisateur);
     }
+
+    public Utilisateur getById(int idUtilisateur){
+        return utilisateurRepo.getById(idUtilisateur);
+    }
+
+    public ResponseJSON getByIdWithToken(int idUtilisateur) {
+        Optional<Utilisateur> utilisateurOpt = utilisateurRepo.findById(idUtilisateur);
+
+        if (utilisateurOpt.isEmpty()) {
+            return new ResponseJSON("Utilisateur introuvable", 404, null);
+        }
+
+        Utilisateur utilisateur = utilisateurOpt.get();
+
+//        Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
+//
+//        if (token == null) {
+//            return new ResponseJSON("Token expiré", 401, null);
+//        }
+        return new ResponseJSON("Utilisateur bien récupéré", 200, utilisateur);
+    }
+
 
     public ResponseJSON login(String email, String password)throws RuntimeException{
         try{
@@ -94,10 +117,10 @@ public class UtilisateurService {
         throw new WrongPinException(utilisateur);
     }
 
-    public ResponseJSON loginPin(String pin,Integer idUtilisateur){
+    public ResponseJSON loginPin(String pin,String tokenUtilisateur){
         Utilisateur utilisateur=null;
         try{
-            utilisateur=this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException());
+            utilisateur=this.utilisateurRepo.findUtilisateurByToken(tokenUtilisateur).orElseThrow(()->new RuntimeException());
             return loginPin(pin,utilisateur);
         }
         catch (PinExpiredException ex){

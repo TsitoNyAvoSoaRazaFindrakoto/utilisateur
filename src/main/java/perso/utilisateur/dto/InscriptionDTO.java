@@ -1,6 +1,7 @@
 package perso.utilisateur.dto;
 
 import lombok.Data;
+import perso.utilisateur.models.Utilisateur;
 
 @Data
 public class InscriptionDTO {

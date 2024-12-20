@@ -23,17 +23,21 @@ public class TokenService {
 
 	private Token createToken(){
 		Token t = new Token();
-
 		return tokenRepo.save(t);
 	}
 
 	public boolean isTokenValid(Token t){
-		return t.getDateExpiration().isBefore(LocalDateTime.now());
+		return t.getDateExpiration().isAfter(LocalDateTime.now());
 	}
 
 	@Transactional
 	public Token reassignUserToken(String ActualToken){
-		Utilisateur u = utilisateurRepo.findUtilisteurFromTokenValue(ActualToken).orElse(null);
+		Utilisateur u = utilisateurRepo.findUtilisateurByToken(ActualToken).orElse(null);
+		return reassignUserToken(u);
+	}
+
+	@Transactional
+	public Token reassignUserToken(Utilisateur u){
 		if (u == null || !isTokenValid(u.getToken())) {
 			return null;
 		}

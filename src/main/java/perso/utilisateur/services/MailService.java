@@ -1,39 +1,54 @@
 package perso.utilisateur.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.UtilisateurRepo;
+import perso.utilisateur.util.MailType;
+
+
 
 @Service
 public class MailService {
-	@Autowired
-	private JavaMailSender mailSender;
-	@Autowired
-	private UtilisateurRepo utilisateurRepo;
+    @Autowired
+    private JavaMailSender mailSender;
+    @Autowired
+    private UtilisateurRepo utilisateurRepo;
+		@Autowired
+		private TokenService tokenService;
 
-	public void sendEmail(String to, String subject, String body) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(to);
-		message.setSubject(subject);
-		message.setText(body);
-		message.setFrom("your-email@gmail.com");
+    public void sendEmail(MailType mailType) {
+        try {
+            // Build the HTML content from MailType
+            String htmlContent = mailType.buildHtml();
+						
+            // Prepare the email
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(mailType.getTargetEmail());
+            helper.setSubject(mailType.getSubject());
 
-		mailSender.send(message);
-	}
+            // Set the HTML content
+            helper.setText(htmlContent, true); // Enable the second parameter for HTML
 
-	public void sendEmail(Object utilisateur,String pin) {
-		if (utilisateur instanceof Integer) {
-			utilisateur = utilisateurRepo.findById((Integer) utilisateur).get();
-		}
-		sendEmail(((Utilisateur)utilisateur).getEmail(),"Pin code", pin);
-	}
+            // Send the email
+            mailSender.send(message);
+            System.out.println("Email sent successfully with HTML content.");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void sendEmail() {
-		sendEmail("valeafifaliana@gmail.com","Pin code", "111");
-	}
-
+    public void sendPinEmail(Object utilisateur, String pin) {
+        if (utilisateur instanceof Integer) {
+            utilisateur = utilisateurRepo.findById((Integer) utilisateur).orElseThrow(
+                () -> new IllegalArgumentException("Utilisateur not found"));
+        }
+        sendEmail(MailType.pin((Utilisateur) utilisateur,pin,tokenService));
+    }
 }
