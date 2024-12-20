@@ -9,7 +9,7 @@ public class PinExpiredException extends RuntimeException {
     private Utilisateur utilisateur;
 
     public PinExpiredException(Utilisateur utilisateur){
-        super("Ce pin est expiré");
+        super("Ce pin est expiré, Veuillez recevoir une autre pin dans l'email");
         this.setUtilisateur(utilisateur);
     }
 }

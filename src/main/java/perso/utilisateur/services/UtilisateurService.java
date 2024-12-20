@@ -114,7 +114,11 @@ public class UtilisateurService {
             return loginPin(pin,utilisateur);
         }
         catch (PinExpiredException ex){
-            return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
+            utilisateur.setPin();
+            mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
+            utilisateurRepo.save(utilisateur);
+            return new ResponseJSON(ex.getMessage(),401);
+            //return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         }
         catch (WrongPinException ex){
             return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
