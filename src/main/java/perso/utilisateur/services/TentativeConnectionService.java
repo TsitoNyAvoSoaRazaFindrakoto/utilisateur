@@ -23,15 +23,13 @@ public class TentativeConnectionService {
         this.tentativeRepo = tentativeRepo;
     }
 
-    public TentativeConnection increaseNumberAttempt(Utilisateur utilisateur)throws ConnectionAttemptException{
-        TentativeConnection tentativeConnection=utilisateur.getTentativeConnection();
-        if(tentativeConnection.getNombre()+1 == parameterSercurity.getNombreTentativeLimite()){
-            String pin=this.pinService.generatePin(utilisateur);
-            mailService.sendEmail(utilisateur,pin);
+    public void increaseNumberAttempt(Utilisateur utilisateur)throws ConnectionAttemptException{
+        utilisateur.increaseNumberAttempt();
+        if(utilisateur.getTentativeConnection().getNombre() % parameterSercurity.getNombreTentativeLimite() == 0){
+            utilisateur.setPin();
+            mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
             throw new ConnectionAttemptException();
         }
-        tentativeConnection.setNombre(tentativeConnection.getNombre()+1);
-        return this.save(tentativeConnection);
     }
 
     public TentativeConnection save(TentativeConnection tentativeConnection){

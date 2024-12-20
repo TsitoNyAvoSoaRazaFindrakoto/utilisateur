@@ -19,7 +19,7 @@ public class ParameterSercurity {
 
     //En seconde
     @Value("${authentification.pin.duree}")
-    private double authentificationPinDuree;
+    private int authentificationPinDuree;
 
     private ConfigurableEnvironment environment;
 
