@@ -1,5 +1,6 @@
 package perso.utilisateur.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,7 @@ import perso.utilisateur.dto.LoginDTO;
 import perso.utilisateur.dto.PinLoginDTO;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.models.Utilisateur;
+import perso.utilisateur.other.POV;
 import perso.utilisateur.services.InscriptionService;
 import perso.utilisateur.services.MailService;
 import perso.utilisateur.services.TokenService;
@@ -72,6 +74,7 @@ public class UtilisateurController {
                     )
             }
     )
+    @JsonView(POV.Public.class)
     @PostMapping("/login/pin")
     public ResponseJSON loginPin(@RequestBody(
             description = "Verification code PIN",

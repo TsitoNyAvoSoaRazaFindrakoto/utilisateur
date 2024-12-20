@@ -55,7 +55,7 @@ public class UtilisateurService {
         Optional<Utilisateur> utilisateurOpt = utilisateurRepo.findById(idUtilisateur);
 
         if (utilisateurOpt.isEmpty()) {
-            return new ResponseJSON("Utilisateur introuvable", 404, null);
+            return new ResponseJSON("Utilisateur introuvable", 404);
         }
 
         Utilisateur utilisateur = utilisateurOpt.get();
@@ -63,7 +63,7 @@ public class UtilisateurService {
        Token token = tokenService.reassignUserToken(utilisateur.getToken().getTokenValue());
 
        if (token == null) {
-           return new ResponseJSON("Token expiré", 401, null);
+           return new ResponseJSON("Token expiré", 401);
        }
         return new ResponseJSON("Utilisateur bien récupéré", 200, utilisateur);
     }
@@ -98,7 +98,7 @@ public class UtilisateurService {
     public ResponseJSON loginPin(String pin,Utilisateur utilisateur){
         String pinHashed=utilisateur.getPin().getPinValue();
         if(SecurityUtil.matchPassword(pin,pinHashed)){
-            if(utilisateur.getPin().getDateExpiration().isAfter(LocalDateTime.now())){
+            if(utilisateur.getPin().getDateExpiration().isBefore(LocalDateTime.now())){
                 throw new PinExpiredException(utilisateur);
             }
             tokenService.reassignUserToken(utilisateur);
@@ -120,6 +120,7 @@ public class UtilisateurService {
             return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         }
         catch (RuntimeException ex){
+            System.out.println("Exception "+ex.getMessage());
             return new ResponseJSON(ex.getMessage(),401);
         }
     }

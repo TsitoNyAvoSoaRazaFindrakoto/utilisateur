@@ -1,8 +1,10 @@
 package perso.utilisateur.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.*;
 import perso.utilisateur.dto.InscriptionDTO;
+import perso.utilisateur.other.POV;
 import perso.utilisateur.util.SecurityUtil;
 
 @Entity
@@ -15,12 +17,15 @@ public class Utilisateur {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_utilisateur")
+	@JsonView(POV.Public.class)
 	private Integer idUtilisateur;
 
 	@Column(name = "pseudo", nullable = false)
+	@JsonView(POV.Public.class)
 	private String pseudo;
 
 	@Column(name = "email", nullable = false, unique = true)
+	@JsonView(POV.Public.class)
 	private String email;
 
 	@Column(name = "password", nullable = false)
@@ -32,6 +37,7 @@ public class Utilisateur {
 
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_token", referencedColumnName = "id_token")
+	@JsonView(POV.Public.class)
 	private Token token;
 
 	@ManyToOne(optional = false)
