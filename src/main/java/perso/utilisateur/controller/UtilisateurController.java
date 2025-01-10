@@ -20,8 +20,11 @@ import perso.utilisateur.services.MailService;
 import perso.utilisateur.services.TokenService;
 import perso.utilisateur.services.UtilisateurService;
 import perso.utilisateur.util.SecurityUtil;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 @RestController
+//@CrossOrigin(origins = "http://127.0.0.1:8000")
 @RequestMapping("/utilisateur")
 @Tag(name = "Utilisateur", description = "API pour gérer les utilisateurs")
 public class UtilisateurController {
@@ -142,6 +145,12 @@ public class UtilisateurController {
     ) {
         return utilisateurService.getByIdWithToken(idUtilisateur);
     }
+
+		@PostMapping("/reset-token")
+		public String resetToken(@RequestBody String token) {
+			return tokenService.reassignUserToken(token).getTokenValue();
+		}
+		
 
 }
 
