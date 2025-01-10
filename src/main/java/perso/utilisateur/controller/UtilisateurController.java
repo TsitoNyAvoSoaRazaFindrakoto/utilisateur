@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 
 @RestController
+//@CrossOrigin(origins = "http://127.0.0.1:8000")
 @RequestMapping("/utilisateur")
 @Tag(name = "Utilisateur", description = "API pour gérer les utilisateurs")
 public class UtilisateurController {
