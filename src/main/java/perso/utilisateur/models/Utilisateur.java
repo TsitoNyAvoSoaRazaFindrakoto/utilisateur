@@ -42,6 +42,7 @@ public class Utilisateur {
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
+	@JsonView(POV.Public.class)
 	private Role role;
 
 
