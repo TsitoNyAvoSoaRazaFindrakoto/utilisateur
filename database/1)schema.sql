@@ -46,6 +46,7 @@ CREATE TABLE
 		id_pin INTEGER,
 		id_token INTEGER,
 		id_role INTEGER NOT NULL,
+		image_profil VARCHAR(50),
 		PRIMARY KEY (id_utilisateur),
 		UNIQUE (id_tentative_connection),
 		UNIQUE (email),
