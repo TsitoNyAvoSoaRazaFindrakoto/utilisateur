@@ -14,56 +14,56 @@ import perso.utilisateur.util.SecurityUtil;
 @AllArgsConstructor
 public class Utilisateur {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_utilisateur")
-	@JsonView(POV.Public.class)
-	private Integer idUtilisateur;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_utilisateur")
+    @JsonView(POV.Public.class)
+    private Integer idUtilisateur;
 
-	@Column(name = "pseudo", nullable = false)
-	@JsonView(POV.Public.class)
-	private String pseudo;
+    @Column(name = "pseudo", nullable = false)
+    @JsonView(POV.Public.class)
+    private String pseudo;
 
-	@Column(name = "email", nullable = false, unique = true)
-	@JsonView(POV.Public.class)
-	private String email;
+    @Column(name = "email", nullable = false, unique = true)
+    @JsonView(POV.Public.class)
+    private String email;
 
-	@Column(name = "password", nullable = false)
-	private String password;
+    @Column(name = "password", nullable = false)
+    private String password;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_pin", referencedColumnName = "id_pin")
-	private Pin pin;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_pin", referencedColumnName = "id_pin")
+    private Pin pin;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "id_token", referencedColumnName = "id_token")
-	@JsonView(POV.Public.class)
-	private Token token;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_token", referencedColumnName = "id_token")
+    @JsonView(POV.Public.class)
+    private Token token;
 
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
-	@JsonView(POV.Public.class)
-	private Role role;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
+    @JsonView(POV.Public.class)
+    private Role role;
 
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_tentative_connection")
     private TentativeConnection tentativeConnection;
 
-    public void setPin(){
-        this.pin=new Pin(SecurityUtil.generatePin());
+    public void setPin() {
+        this.pin = new Pin(SecurityUtil.generatePin());
     }
 
-    public void increaseNumberAttempt(){
-        this.tentativeConnection.setNombre(this.tentativeConnection.getNombre()+1);
+    public void increaseNumberAttempt() {
+        this.tentativeConnection.setNombre(this.tentativeConnection.getNombre() + 1);
     }
 
-		public static Utilisateur from(InscriptionDTO inscriptionDTO) {
-			Utilisateur utilisateur = new Utilisateur();
-			utilisateur.setPseudo(inscriptionDTO.getPseudo());
-			utilisateur.setEmail(inscriptionDTO.getEmail());
-			utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
-			utilisateur.setRole(new Role(1,null));
-			return utilisateur;
-		}
+    public static Utilisateur from(InscriptionDTO inscriptionDTO) {
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setPseudo(inscriptionDTO.getPseudo());
+        utilisateur.setEmail(inscriptionDTO.getEmail());
+        utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
+        utilisateur.setRole(new Role(1, null));
+        return utilisateur;
+    }
 }

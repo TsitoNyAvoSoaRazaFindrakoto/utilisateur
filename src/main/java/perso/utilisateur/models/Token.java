@@ -32,6 +32,11 @@ public class Token {
 		this.setDateExpiration(LocalDateTime.now().plusHours(1));
 	}
 
+	public Token(String tokenValue,LocalDateTime dateExpiration){
+		this.setTokenValue(tokenValue);
+		this.setDateExpiration(dateExpiration);
+	}
+
 	public void updateToken(){
 		this.setTokenValue(SecurityUtil.generateToken());
 		this.setDateExpiration(LocalDateTime.now().plusHours(1));

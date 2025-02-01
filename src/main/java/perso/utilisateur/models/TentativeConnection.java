@@ -23,4 +23,8 @@ public class TentativeConnection {
     public TentativeConnection(){
         this.setNombre(0);
     }
+
+    public TentativeConnection(int nombre){
+        this.nombre=nombre;
+    }
 }
