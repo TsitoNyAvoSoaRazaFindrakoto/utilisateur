@@ -55,6 +55,6 @@ public class UtilisateurFirestore {
     }
 
     public Utilisateur createUser(){
-        return new Utilisateur(this.idUtilisateur,pseudo,email,password,new Pin(pin),token,new Role(role),new TentativeConnection((tentativeConnection.intValue())));
+        return new Utilisateur(this.idUtilisateur,pseudo,email,password,new Role(role));
     }
 }

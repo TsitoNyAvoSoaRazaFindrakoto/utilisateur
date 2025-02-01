@@ -31,31 +31,17 @@ public class Utilisateur {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_pin", referencedColumnName = "id_pin")
-    private Pin pin;
-
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_token", referencedColumnName = "id_token")
-    @JsonView(POV.Public.class)
-    private Token token;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
     @JsonView(POV.Public.class)
     private Role role;
 
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_tentative_connection")
-    private TentativeConnection tentativeConnection;
-
-    public void setPin() {
-        this.pin = new Pin(SecurityUtil.generatePin());
+    public Pin setPin() {
+        return new Pin(SecurityUtil.generatePin(),this);
     }
 
-    public void increaseNumberAttempt() {
-        this.tentativeConnection.setNombre(this.tentativeConnection.getNombre() + 1);
+    public TentativeConnection increaseNumberAttempt(TentativeConnection tentativeBefore) {
+        return new TentativeConnection(tentativeBefore.getNombre()+1);
     }
 
     public static Utilisateur from(InscriptionDTO inscriptionDTO) {

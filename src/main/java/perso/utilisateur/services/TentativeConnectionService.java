@@ -3,6 +3,7 @@ package perso.utilisateur.services;
 import org.springframework.stereotype.Service;
 import perso.utilisateur.config.ParameterSercurity;
 import perso.utilisateur.exception.ConnectionAttemptException;
+import perso.utilisateur.models.Pin;
 import perso.utilisateur.models.TentativeConnection;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.repositories.TentativeRepo;
@@ -24,10 +25,11 @@ public class TentativeConnectionService {
     }
 
     public void increaseNumberAttempt(Utilisateur utilisateur)throws ConnectionAttemptException{
-        utilisateur.increaseNumberAttempt();
-        if(utilisateur.getTentativeConnection().getNombre() % parameterSercurity.getNombreTentativeLimite() == 0){
-            utilisateur.setPin();
-            mailService.sendPinEmail(utilisateur,utilisateur.getPin().getPinValue());
+        TentativeConnection tentativeConnection = utilisateur.increaseNumberAttempt(tentativeRepo.findLastAttemptConnectionUser(utilisateur.getIdUtilisateur()).orElse(new TentativeConnection(utilisateur)));
+        if(tentativeConnection.getNombre() % parameterSercurity.getNombreTentativeLimite() == 0){
+            Pin pin=utilisateur.setPin();
+            pinService.save(pin);
+            mailService.sendPinEmail(utilisateur,pin.getPinValue());
             throw new ConnectionAttemptException();
         }
     }

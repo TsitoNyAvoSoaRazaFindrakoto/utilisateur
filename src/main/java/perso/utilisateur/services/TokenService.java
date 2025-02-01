@@ -21,9 +21,13 @@ public class TokenService {
 		this.utilisateurRepo = utilisateurRepo;
 	}
 
-	private Token createToken(){
-		Token t = new Token();
+	private Token createToken(Utilisateur utilisateur){
+		Token t = new Token(utilisateur);
 		return tokenRepo.save(t);
+	}
+
+	public Token save(Token token){
+		return this.tokenRepo.save(token);
 	}
 
 	public boolean isTokenValid(Token t){
@@ -36,17 +40,21 @@ public class TokenService {
 		return reassignUserToken(u);
 	}
 
+	public Token findUserToken(Utilisateur utilisateur){
+		return this.tokenRepo.findTokenByUtilisateur(utilisateur.getIdUtilisateur()).orElse(new Token(utilisateur));
+	}
+
 	@Transactional
 	public Token reassignUserToken(Utilisateur u){
-		if (u == null || !isTokenValid(u.getToken())) {
+		if (u == null || !isTokenValid(this.findUserToken(u))) {
 			return null;
 		}
 		return createUserToken(u);
 	}
 
-	@Transactional 
+	@Transactional
 	public Token createUserToken(Utilisateur u){
-		if (u.getToken() != null) {
+		if (this.findUserToken(u) != null) {
 			return updateUserToken(u);
 		}
 		return assignUserToken(u);
@@ -54,16 +62,15 @@ public class TokenService {
 
 	@Transactional
 	public Token updateUserToken(Utilisateur u){
-		Token oldToken = u.getToken();
+		Token oldToken = this.findUserToken(u);
 		oldToken.updateToken();
 		return tokenRepo.save(oldToken);
 	}
 
 	@Transactional
 	public Token assignUserToken(Utilisateur u){
-		Token newT = createToken();
-		u.setToken(newT);
-		utilisateurRepo.save(u);
+		Token newT = createToken(u);
+		tokenRepo.save(newT);
 		return newT;
 	}
 }
