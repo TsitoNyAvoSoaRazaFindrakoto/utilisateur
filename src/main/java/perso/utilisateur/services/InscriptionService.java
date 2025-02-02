@@ -1,5 +1,6 @@
 package perso.utilisateur.services;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,32 +16,32 @@ import perso.utilisateur.repositories.UtilisateurRepo;
 import perso.utilisateur.util.SecurityUtil;
 
 @Service
+@AllArgsConstructor
 public class InscriptionService {
-	@Autowired private UtilisateurRepo utilisateurRepo;
-	@Autowired private TokenService tokenService;
-	@Autowired private MailService mailService;
-	@Autowired private PinService pinService;
-	@Autowired private TentativeRepo tentativeRepo;
+	private UtilisateurRepo utilisateurRepo;
+	private TokenService tokenService;
+	private MailService mailService;
+	private PinService pinService;
+	private TentativeRepo tentativeRepo;
 
 
 	@Transactional
 	public ResponseJSON sendValidationMail(Utilisateur u){
 		
 		String p = SecurityUtil.generatePin();
-		Pin pin = pinService.save(new Pin(p));
+		Pin pin = pinService.save(new Pin(p,u));
 		
-		TentativeConnection tentativeConnection = new TentativeConnection();
+		TentativeConnection tentativeConnection = new TentativeConnection(u);
 		tentativeConnection.setNombre(0);
-		tentativeConnection = tentativeRepo.save(tentativeConnection);
+		tentativeRepo.save(tentativeConnection);
 		
-		u.setPin(pin);
-		u.setTentativeConnection(tentativeConnection);
+		pinService.save(pin);
 
 		u = utilisateurRepo.save(u);
 		
 		mailService.sendPinEmail(u, p);
 		
-		return new ResponseJSON("email envoye",200,u.getToken().getTokenValue());
+		return new ResponseJSON("email envoye",200,tokenService.findUserToken(u).getTokenValue());
 	}
 
 }

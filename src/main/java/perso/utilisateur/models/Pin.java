@@ -24,11 +24,18 @@ public class Pin {
 	@Column(name = "date_expiration",nullable = false)
 	private LocalDateTime dateExpiration;
 
+	private LocalDateTime dateCreation=LocalDateTime.now();
+
+	@ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_utilisateur")
+	private Utilisateur utilisateur;
+
 	public Pin(){
 
 	}
 
-	public Pin(String pinValue){
+	public Pin(String pinValue,Utilisateur utilisateur){
 		this.setPinValue(pinValue);
+		this.setUtilisateur(utilisateur);
 	}
 }

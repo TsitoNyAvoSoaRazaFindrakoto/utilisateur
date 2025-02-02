@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "token")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Token {
 
 	@Id
@@ -27,9 +28,21 @@ public class Token {
 	@Column(name = "date_expiration", nullable = false)
 	private LocalDateTime dateExpiration;
 
-	public Token(){
+	private LocalDateTime dateCreation=LocalDateTime.now();
+
+	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+	@JoinColumn(name = "id_utilisateur")
+	private Utilisateur utilisateur;
+
+	public Token(Utilisateur utilisateur){
 		this.setTokenValue(SecurityUtil.generateToken());
 		this.setDateExpiration(LocalDateTime.now().plusHours(1));
+		this.setUtilisateur(utilisateur);
+	}
+
+	public Token(String tokenValue,LocalDateTime dateExpiration){
+		this.setTokenValue(tokenValue);
+		this.setDateExpiration(dateExpiration);
 	}
 
 	public void updateToken(){

@@ -8,55 +8,45 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import perso.utilisateur.dto.InscriptionDTO;
-import perso.utilisateur.dto.LoginDTO;
-import perso.utilisateur.dto.PinLoginDTO;
-import perso.utilisateur.dto.ResponseJSON;
+import perso.utilisateur.dto.*;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.other.POV;
 import perso.utilisateur.services.InscriptionService;
 import perso.utilisateur.services.MailService;
 import perso.utilisateur.services.TokenService;
 import perso.utilisateur.services.UtilisateurService;
-import perso.utilisateur.util.SecurityUtil;
+import perso.utilisateur.services.firebase.FirestoreService;
 import org.springframework.web.bind.annotation.PostMapping;
 
 
 @RestController
 //@CrossOrigin(origins = "http://127.0.0.1:8000")
 @RequestMapping("/utilisateur")
+@AllArgsConstructor
 @Tag(name = "Utilisateur", description = "API pour gérer les utilisateurs")
 public class UtilisateurController {
-	private InscriptionService inscriptionService;
+    private InscriptionService inscriptionService;
 
     private MailService mailService;
 
     private final UtilisateurService utilisateurService;
     private final TokenService tokenService;
-
-
-
-    public UtilisateurController(InscriptionService inscriptionService, MailService mailService, UtilisateurService utilisateurService, TokenService tokenService) {
-        this.inscriptionService = inscriptionService;
-        this.mailService = mailService;
-        this.utilisateurService = utilisateurService;
-        this.tokenService = tokenService;
-    }
+    private FirestoreService firestoreService;
 
 
     @Operation(summary = "Connexion utilisateur", description = "Permet à un utilisateur de se connecter avec son email et son mot de passe", responses = {
-			@ApiResponse(responseCode = "200", description = "Verification code PIN", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))),
-			@ApiResponse(responseCode = "401", description = "Email non reconnue ou mot de passe incorrecte", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class)))
-	})
-	@PostMapping("/login")
-	public ResponseJSON login(
-			@RequestBody(description = "Email et mot de passe", required = false, content = @Content(schema = @Schema(implementation = LoginDTO.class))) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
-		return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
-		// return new ResponseJSON("ok",200,loginDTO);
-	}
+            @ApiResponse(responseCode = "200", description = "Verification code PIN", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))),
+            @ApiResponse(responseCode = "401", description = "Email non reconnue ou mot de passe incorrecte", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class)))
+    })
+    @PostMapping("/login")
+    public ResponseJSON login(
+            @RequestBody(description = "Email et mot de passe", required = false, content = @Content(schema = @Schema(implementation = LoginDTO.class))) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
+        return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
+    }
 
-	@Operation(
+    @Operation(
             summary = "Connexion utilisateur par PIN",
             description = "Permet à un utilisateur de se connecter avec un PIN",
             responses = {
@@ -87,7 +77,7 @@ public class UtilisateurController {
         return utilisateurService.loginPin(pinLoginDTO.getPin(), pinLoginDTO.getTokenUtilisateur());
     }
 
-	@Operation(
+    @Operation(
             summary = "Inscription ou modification d'un utilisateur",
             description = "Enregistre ou modifier utilisateur et génère un token",
             responses = {
@@ -103,18 +93,18 @@ public class UtilisateurController {
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Email qui deja existe",
+                            description = "Email qui existe deja",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
                     )
             }
     )
     @PostMapping("/inscription")
     public ResponseJSON inscription(@RequestBody(
-			description = "Inscription ou modification d'une utilisateur",
-			required = false,
-			content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
-    ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO ){
-			return inscriptionService.sendValidationMail(Utilisateur.from(inscriptionDTO));
+            description = "Inscription ou modification d'une utilisateur",
+            required = false,
+            content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
+    ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO) {
+        return inscriptionService.sendValidationMail(Utilisateur.from(inscriptionDTO));
     }
 
     @Operation(
@@ -146,11 +136,15 @@ public class UtilisateurController {
         return utilisateurService.getByIdWithToken(idUtilisateur);
     }
 
-		@PostMapping("/reset-token")
-		public String resetToken(@RequestBody String token) {
-			return tokenService.reassignUserToken(token).getTokenValue();
-		}
-		
+    @GetMapping("/pin/request/{idUtilisateur}")
+    public ResponseJSON requestPin(@PathVariable("idUtilisateur")int idUtilisateur){
+        return utilisateurService.pinRequest(idUtilisateur);
+    }
+
+    @PostMapping("/reset-token")
+    public String resetToken(@RequestBody String token) {
+        return tokenService.reassignUserToken(token).getTokenValue();
+    }
 
 }
 

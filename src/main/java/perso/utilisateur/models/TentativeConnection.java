@@ -2,12 +2,14 @@ package perso.utilisateur.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Table(name = "tentative_connection")
 @Data
 @Entity
+@NoArgsConstructor
 public class TentativeConnection {
     @Id
     @Column(name = "id_tentative_connection")
@@ -16,11 +18,18 @@ public class TentativeConnection {
 
     private int nombre;
 
+    private LocalDateTime dateTentative=LocalDateTime.now();
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE,mappedBy = "tentativeConnection")
-    private List<Utilisateur> utilisateur;
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_utilisateur")
+    private Utilisateur utilisateur;
 
-    public TentativeConnection(){
+    public TentativeConnection(Utilisateur utilisateur){
         this.setNombre(0);
+        this.setUtilisateur(utilisateur);
+    }
+
+    public TentativeConnection(int nombre){
+        this.nombre=nombre;
     }
 }
