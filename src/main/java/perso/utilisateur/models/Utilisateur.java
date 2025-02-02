@@ -49,7 +49,7 @@ public class Utilisateur {
         utilisateur.setPseudo(inscriptionDTO.getPseudo());
         utilisateur.setEmail(inscriptionDTO.getEmail());
         utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
-        utilisateur.setRole(new Role(1, null));
+        utilisateur.setRole(new Role(1, "Membre simple"));
         return utilisateur;
     }
 }

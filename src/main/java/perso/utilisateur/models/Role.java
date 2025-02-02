@@ -18,6 +18,7 @@ public class Role {
 	@JsonView(POV.Public.class)
 	private Integer idRole;
 
+	@JsonView(POV.Public.class)
 	@Column(name = "role", nullable = false, unique = true)
 	private String roleName;
 
