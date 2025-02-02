@@ -30,6 +30,7 @@ public class TokenService {
 		return this.tokenRepo.save(token);
 	}
 
+	@Transactional
 	public boolean isTokenValid(Token t){
 		return t.getDateExpiration().isAfter(LocalDateTime.now());
 	}

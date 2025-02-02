@@ -38,8 +38,8 @@ public class UtilisateurService {
     public ResponseJSON pinRequest(int idUtilisateur){
         Utilisateur utilisateur = this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException("Id Utilisateur non reconnue"));
         Pin pin=utilisateur.setPin();
-        pinService.save(pin);
         mailService.sendPinEmail(utilisateur,pin.getPinValue());
+        pinService.save(pin);
         utilisateur = this.save(utilisateur);
         return new ResponseJSON("Pin en attente de validation",200,tokenService.findUserToken(utilisateur).getTokenValue());
     }
@@ -92,11 +92,11 @@ public class UtilisateurService {
         try{
             UtilisateurFirestore utilisateurFirestore=firestoreService.findUtilisateur(email);
             Utilisateur utilisateur=utilisateurFirestore.createUser();
-            this.savePrepare(utilisateur);
+            utilisateur=this.savePrepare(utilisateur);
             if(SecurityUtil.matchPassword(password, utilisateur.getPassword())){
                 Pin pin=utilisateur.setPin();
-                pinService.save(pin);
                 mailService.sendPinEmail(utilisateur,pin.getPinValue());
+                pinService.save(pin);
                 utilisateur = this.save(utilisateur);
                 return new ResponseJSON("Login valide",200,tokenService.findUserToken(utilisateur).getTokenValue());
             }
@@ -107,19 +107,27 @@ public class UtilisateurService {
     }
 
     @Transactional
-    public void savePrepare(Utilisateur utilisateur){
+    public Utilisateur savePrepare(Utilisateur utilisateur){
         this.entityManager.createNativeQuery("""
-                                            insert into utilisateur(pseudo,
+                                            insert into utilisateur(id_utilisateur,
+                                                                    pseudo,
                                                                     email,
                                                                     password,
                                                                     id_role) 
-                                            values(?,?,?,?,?,?,?)
+                                            values(?,?,?,?,?)
                                             """)
-                .setParameter(1, utilisateur.getPseudo())
-                .setParameter(2, utilisateur.getEmail())
-                .setParameter(3, utilisateur.getPassword())
-                .setParameter(7,1)
+                .setParameter(1,utilisateur.getIdUtilisateur())
+                .setParameter(2, utilisateur.getPseudo())
+                .setParameter(3, utilisateur.getEmail())
+                .setParameter(4, utilisateur.getPassword())
+                .setParameter(5,1)
                 .executeUpdate();
+        return this.findUtilisateurById(utilisateur.getIdUtilisateur());
+    }
+
+    @Transactional
+    public Utilisateur findUtilisateurById(Integer idUtilisateur){
+        return this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException("Id utilisateur non reconnue"));
     }
 
     @Transactional
@@ -127,7 +135,7 @@ public class UtilisateurService {
         if(SecurityUtil.matchPassword(password, hashedPassword)){
             Pin pin = utilisateur.setPin();
             mailService.sendPinEmail(utilisateur,pin.getPinValue());
-            pin = pinService.save(pin);
+            pinService.save(pin);
             utilisateur = this.save(utilisateur);
             return new ResponseJSON("Login valide",200,tokenService.findUserToken(utilisateur).getTokenValue());
         }
@@ -171,8 +179,8 @@ public class UtilisateurService {
         }
         catch (PinExpiredException ex){
             Pin newPin=utilisateur.setPin();
-            pinService.save(newPin);
             mailService.sendPinEmail(utilisateur,newPin.getPinValue());
+            pinService.save(newPin);
             utilisateurRepo.save(utilisateur);
             return new ResponseJSON(ex.getMessage(),401);
             //return increaseAttempt(ex.getUtilisateur(),ex.getMessage());

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "token")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Token {
 
 	@Id

@@ -24,7 +24,7 @@ public class Pin {
 	@Column(name = "date_expiration",nullable = false)
 	private LocalDateTime dateExpiration;
 
-	private LocalDateTime dateCreation;
+	private LocalDateTime dateCreation=LocalDateTime.now();
 
 	@ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_utilisateur")
