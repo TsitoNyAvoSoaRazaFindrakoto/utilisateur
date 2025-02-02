@@ -1,12 +1,8 @@
-\c
-postgres;
-drop
-DATABASE if EXISTS utilisateur;
+\c postgres;
+drop DATABASE if EXISTS utilisateur;
 
-create
-database utilisateur;
-\c
-utilisateur;
+create database utilisateur;
+\c utilisateur;
 
 CREATE TABLE role
 (
@@ -18,7 +14,7 @@ CREATE TABLE role
 
 CREATE TABLE utilisateur
 (
-    id_utilisateur SERIAL,
+    id_utilisateur INTEGER,
     pseudo         VARCHAR(50)  NOT NULL,
     email          VARCHAR(100) NOT NULL,
     password       VARCHAR(255) NOT NULL,

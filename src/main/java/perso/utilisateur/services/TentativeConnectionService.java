@@ -34,6 +34,10 @@ public class TentativeConnectionService {
         }
     }
 
+    public TentativeConnection findNbTentativeConnection(Utilisateur utilisateur){
+        return this.tentativeRepo.findLastAttemptConnectionUser(utilisateur.getIdUtilisateur()).orElse(new TentativeConnection(utilisateur));
+    }
+
     public TentativeConnection save(TentativeConnection tentativeConnection){
         return tentativeRepo.save(tentativeConnection);
     }

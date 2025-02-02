@@ -15,6 +15,8 @@ import perso.utilisateur.services.firebase.FirestoreService;
 import perso.utilisateur.util.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -28,7 +30,7 @@ public class UtilisateurService {
 
     private MailService mailService;
     private FirestoreService firestoreService;
-    private EntityManager entityManager;
+    private InscriptionService inscriptionService;
 
     public Utilisateur findByEmail(String email)throws RuntimeException{
         return utilisateurRepo.findByEmail(email).orElseThrow(()->new EmailNotFoundException("Email inexistante"));
@@ -92,7 +94,7 @@ public class UtilisateurService {
         try{
             UtilisateurFirestore utilisateurFirestore=firestoreService.findUtilisateur(email);
             Utilisateur utilisateur=utilisateurFirestore.createUser();
-            utilisateur=this.savePrepare(utilisateur);
+            utilisateur=this.inscriptionService.savePrepare(utilisateur);
             if(SecurityUtil.matchPassword(password, utilisateur.getPassword())){
                 Pin pin=utilisateur.setPin();
                 mailService.sendPinEmail(utilisateur,pin.getPinValue());
@@ -104,25 +106,6 @@ public class UtilisateurService {
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Transactional
-    public Utilisateur savePrepare(Utilisateur utilisateur){
-        this.entityManager.createNativeQuery("""
-                                            insert into utilisateur(id_utilisateur,
-                                                                    pseudo,
-                                                                    email,
-                                                                    password,
-                                                                    id_role) 
-                                            values(?,?,?,?,?)
-                                            """)
-                .setParameter(1,utilisateur.getIdUtilisateur())
-                .setParameter(2, utilisateur.getPseudo())
-                .setParameter(3, utilisateur.getEmail())
-                .setParameter(4, utilisateur.getPassword())
-                .setParameter(5,1)
-                .executeUpdate();
-        return this.findUtilisateurById(utilisateur.getIdUtilisateur());
     }
 
     @Transactional

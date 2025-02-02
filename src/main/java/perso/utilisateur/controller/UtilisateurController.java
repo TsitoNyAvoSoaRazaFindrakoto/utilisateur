@@ -145,6 +145,5 @@ public class UtilisateurController {
     public String resetToken(@RequestBody String token) {
         return tokenService.reassignUserToken(token).getTokenValue();
     }
-
 }
 
