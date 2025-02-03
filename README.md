@@ -17,15 +17,37 @@ Gestion des utilisateurs.
 
 ## Déploiement et Lancement
 
-### 1. Construire et démarrer les conteneurs
+## Étapes d'exécution
 
-Exécute la commande suivante :
+### 1. Compiler et générer le `.jar` du projet
+Avant de déployer l'application, assurez-vous de compiler le projet et de générer le fichier `.jar` :
+
 ```sh
-mvn spring-boot::run
+mvn clean package
 ```
+
+Cette commande effectue une compilation propre et génère le `.jar` dans le dossier `target/`.
+
+### 2. Déployer l'application avec Docker
+Une fois le `.jar` généré, utilisez Docker Compose pour construire et exécuter les conteneurs :
+
 ```sh
 docker-compose up --build -d
 ```
+
+### 3. Exécuter directement l'application (optionnel)
+Si vous souhaitez exécuter l'application sans passer par Docker, utilisez :
+
+```sh
+mvn spring-boot:run
+```
+
+Cela démarre directement l'application Spring Boot sans la compiler en `.jar`.
+
+---
+
+Votre application est maintenant déployée avec Docker ! 🚀
+
 
 ### 2. Vérifier l'exécution des conteneurs
 
