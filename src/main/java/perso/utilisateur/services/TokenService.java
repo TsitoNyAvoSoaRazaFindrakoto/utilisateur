@@ -55,9 +55,6 @@ public class TokenService {
 
 	@Transactional
 	public Token createUserToken(Utilisateur u){
-		if (this.findUserToken(u) != null) {
-			return updateUserToken(u);
-		}
 		return assignUserToken(u);
 	}
 
