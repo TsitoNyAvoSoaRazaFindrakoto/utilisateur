@@ -32,27 +32,27 @@ public class UtilisateurService {
     private FirestoreService firestoreService;
     private InscriptionService inscriptionService;
 
-    public Utilisateur findByEmail(String email)throws RuntimeException{
-        return utilisateurRepo.findByEmail(email).orElseThrow(()->new EmailNotFoundException("Email inexistante"));
+    public Utilisateur findByEmail(String email) throws RuntimeException {
+        return utilisateurRepo.findByEmail(email).orElseThrow(() -> new EmailNotFoundException("Email inexistante"));
     }
 
     @Transactional
-    public ResponseJSON pinRequest(int idUtilisateur){
-        Utilisateur utilisateur = this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException("Id Utilisateur non reconnue"));
-        Pin pin=utilisateur.setPin();
-        mailService.sendPinEmail(utilisateur,pin.getPinValue());
+    public ResponseJSON pinRequest(int idUtilisateur) {
+        Utilisateur utilisateur = this.utilisateurRepo.findById(idUtilisateur).orElseThrow(() -> new RuntimeException("Id Utilisateur non reconnue"));
+        Pin pin = utilisateur.setPin();
+        mailService.sendPinEmail(utilisateur, pin.getPinValue());
         pinService.save(pin);
         utilisateur = this.save(utilisateur);
-        return new ResponseJSON("Pin en attente de validation",200,tokenService.findUserToken(utilisateur).getTokenValue());
+        return new ResponseJSON("Pin en attente de validation", 200, tokenService.findUserToken(utilisateur).getTokenValue());
     }
 
-    public ResponseJSON testLogin(String email,String password)throws EmailNotFoundException,PasswordInvalidException{
-        Utilisateur utilisateur=this.findByEmail(email);
+    public ResponseJSON testLogin(String email, String password) throws EmailNotFoundException, PasswordInvalidException {
+        Utilisateur utilisateur = this.findByEmail(email);
         return matchPassword(password, utilisateur, utilisateur.getPassword());
     }
 
     @Transactional
-    public Utilisateur save(Utilisateur utilisateur){
+    public Utilisateur save(Utilisateur utilisateur) {
         utilisateur.setRole(this.roleService.findById(1));
         return utilisateurRepo.save(utilisateur);
     }
@@ -66,114 +66,103 @@ public class UtilisateurService {
 
         Utilisateur utilisateur = utilisateurOpt.get();
 
-       Token token = tokenService.reassignUserToken(tokenService.findUserToken(utilisateur).getTokenValue());
+        Token token = tokenService.reassignUserToken(tokenService.findUserToken(utilisateur).getTokenValue());
 
-       if (token == null) {
-           return new ResponseJSON("Token expiré", 401);
-       }
+        if (token == null) {
+            return new ResponseJSON("Token expiré", 401);
+        }
         return new ResponseJSON("Utilisateur bien récupéré", 200, utilisateur);
     }
 
 
     @Transactional
-    public ResponseJSON login(String email, String password)throws RuntimeException{
-        try{
-            return this.testLogin(email,password);
-        }
-        catch (PasswordInvalidException exception){
-            return this.increaseAttempt(exception.getUtilisateur(),exception.getMessage());
-        }
-        catch (EmailNotFoundException exception){
-            return this.loginFirestore(email,password);
+    public ResponseJSON login(String email, String password) throws RuntimeException {
+        try {
+            return this.testLogin(email, password);
+        } catch (PasswordInvalidException exception) {
+            return this.increaseAttempt(exception.getUtilisateur(), exception.getMessage());
+        } catch (EmailNotFoundException exception) {
+            return this.loginFirestore(email, password);
         }
 
     }
 
     @Transactional
-    public ResponseJSON loginFirestore(String email,String password){
-        try{
-            UtilisateurFirestore utilisateurFirestore=firestoreService.findUtilisateur(email);
-            Utilisateur utilisateur=utilisateurFirestore.createUser();
-            utilisateur=this.inscriptionService.savePrepare(utilisateur);
-            if(SecurityUtil.matchPassword(password, utilisateur.getPassword())){
-                Pin pin=utilisateur.setPin();
-                mailService.sendPinEmail(utilisateur,pin.getPinValue());
+    public ResponseJSON loginFirestore(String email, String password) {
+        try {
+            UtilisateurFirestore utilisateurFirestore = firestoreService.findUtilisateur(email);
+            Utilisateur utilisateur = utilisateurFirestore.createUser();
+            utilisateur = this.inscriptionService.savePrepare(utilisateur);
+            if (SecurityUtil.matchPassword(password, utilisateur.getPassword())) {
+                Pin pin = utilisateur.setPin();
+                mailService.sendPinEmail(utilisateur, pin.getPinValue());
                 pinService.save(pin);
                 utilisateur = this.save(utilisateur);
-                return new ResponseJSON("Login valide",200,tokenService.findUserToken(utilisateur).getTokenValue());
+                return new ResponseJSON("Login valide", 200, tokenService.findUserToken(utilisateur).getTokenValue());
             }
-            throw new PasswordInvalidException(utilisateur);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+            return new ResponseJSON(new PasswordInvalidException(utilisateur).getMessage(), 401);
+        } catch (EmailNotFoundException e) {
+            return new ResponseJSON(e.getMessage(), 401);
         }
     }
 
     @Transactional
-    public Utilisateur findUtilisateurById(Integer idUtilisateur){
-        return this.utilisateurRepo.findById(idUtilisateur).orElseThrow(()->new RuntimeException("Id utilisateur non reconnue"));
+    public Utilisateur findUtilisateurById(Integer idUtilisateur) {
+        return this.utilisateurRepo.findById(idUtilisateur).orElseThrow(() -> new RuntimeException("Id utilisateur non reconnue"));
     }
 
     @Transactional
-    public ResponseJSON matchPassword(String password, Utilisateur utilisateur, String hashedPassword) throws PasswordInvalidException{
-        if(SecurityUtil.matchPassword(password, hashedPassword)){
+    public ResponseJSON matchPassword(String password, Utilisateur utilisateur, String hashedPassword) throws PasswordInvalidException {
+        if (SecurityUtil.matchPassword(password, hashedPassword)) {
             Pin pin = utilisateur.setPin();
-            mailService.sendPinEmail(utilisateur,pin.getPinValue());
+            mailService.sendPinEmail(utilisateur, pin.getPinValue());
             pinService.save(pin);
             utilisateur = this.save(utilisateur);
-            return new ResponseJSON("Login valide",200,tokenService.findUserToken(utilisateur).getTokenValue());
+            return new ResponseJSON("Login valide", 200, tokenService.findUserToken(utilisateur).getTokenValue());
         }
         throw new PasswordInvalidException(utilisateur);
     }
 
     @Transactional
-    public ResponseJSON increaseAttempt(Utilisateur utilisateur,String message){
-        try{
+    public ResponseJSON increaseAttempt(Utilisateur utilisateur, String message) {
+        try {
             tentativeConnectionService.increaseNumberAttempt(utilisateur);
-        }
-        catch (ConnectionAttemptException connectionException){
-            return new ResponseJSON(connectionException.getMessage(),200,utilisateur.getIdUtilisateur());
-        }
-
-        finally {
+        } catch (ConnectionAttemptException connectionException) {
+            return new ResponseJSON(connectionException.getMessage(), 401, utilisateur.getIdUtilisateur());
+        } finally {
             this.save(utilisateur);
         }
-        return new ResponseJSON(message,500);
+        return new ResponseJSON(message, 401);
     }
 
-    public ResponseJSON loginPin(String pin,Utilisateur utilisateur){
-        Pin pinBase=pinService.findPinUtilisateur(utilisateur.getIdUtilisateur());
-        String pinHashed=pinBase.getPinValue();
-        if(SecurityUtil.matchPassword(pin,pinHashed)){
-            if(pinBase.getDateExpiration().isBefore(LocalDateTime.now())){
+    public ResponseJSON loginPin(String pin, Utilisateur utilisateur) {
+        Pin pinBase = pinService.findPinUtilisateur(utilisateur.getIdUtilisateur());
+        String pinHashed = pinBase.getPinValue();
+        if (SecurityUtil.matchPassword(pin, pinHashed)) {
+            if (pinBase.getDateExpiration().isBefore(LocalDateTime.now())) {
                 throw new PinExpiredException(utilisateur);
             }
             tokenService.reassignUserToken(utilisateur);
-            return new ResponseJSON("Code pin valide",200,utilisateur);
+            return new ResponseJSON("Code pin valide", 200, utilisateur);
         }
         throw new WrongPinException(utilisateur);
     }
 
     @Transactional
-    public ResponseJSON loginPin(String pin,String tokenUtilisateur){
-        Utilisateur utilisateur=null;
-        try{
-            utilisateur=this.utilisateurRepo.findUtilisateurByToken(tokenUtilisateur).orElseThrow(()->new RuntimeException());
-            return loginPin(pin,utilisateur);
-        }
-        catch (PinExpiredException ex){
-            Pin newPin=utilisateur.setPin();
-            mailService.sendPinEmail(utilisateur,newPin.getPinValue());
+    public ResponseJSON loginPin(String pin, String tokenUtilisateur) {
+        Utilisateur utilisateur = null;
+        try {
+            utilisateur = this.utilisateurRepo.findUtilisateurByToken(tokenUtilisateur).orElseThrow(() -> new RuntimeException());
+            return loginPin(pin, utilisateur);
+        } catch (PinExpiredException ex) {
+            Pin newPin = utilisateur.setPin();
+            mailService.sendPinEmail(utilisateur, newPin.getPinValue());
             pinService.save(newPin);
-            utilisateurRepo.save(utilisateur);
-            return new ResponseJSON(ex.getMessage(),401);
+            utilisateur=utilisateurRepo.save(utilisateur);
+            return new ResponseJSON(ex.getMessage(), 401,tokenService.findUserToken(utilisateur).getTokenValue());
             //return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
-        }
-        catch (WrongPinException ex){
-            return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
-        }
-        catch (RuntimeException ex){
-            System.out.println("Exception "+ex.getMessage());
-            return new ResponseJSON(ex.getMessage(),401);
+        } catch (WrongPinException ex) {
+            return increaseAttempt(ex.getUtilisateur(), ex.getMessage());
         }
     }
 }
