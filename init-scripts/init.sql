@@ -1,47 +1,67 @@
-CREATE TABLE IF NOT EXISTS ROLE(
-    ID_ROLE SERIAL,
-    ROLE VARCHAR(50) NOT NULL,
-    PRIMARY KEY(ID_ROLE),
-    UNIQUE(ROLE)
+drop DATABASE if EXISTS utilisateur;
+
+create database utilisateur;
+\c utilisateur;
+
+CREATE TABLE role
+(
+    id_role SERIAL,
+    role    VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id_role),
+    UNIQUE (role)
 );
 
-CREATE TABLE IF NOT EXISTS TOKEN(
-    ID_TOKEN SERIAL,
-    TOKEN VARCHAR(255) NOT NULL,
-    DATE_EXPIRATION TIMESTAMP NOT NULL,
-    PRIMARY KEY(ID_TOKEN),
-    UNIQUE(TOKEN)
+CREATE TABLE utilisateur
+(
+    id_utilisateur INTEGER,
+    pseudo         VARCHAR(50)  NOT NULL,
+    email          VARCHAR(100) NOT NULL,
+    password       VARCHAR(255) NOT NULL,
+    id_role        INTEGER      NOT NULL,
+    PRIMARY KEY (id_utilisateur),
+    UNIQUE (email),
+    FOREIGN KEY (id_role) REFERENCES role (id_role)
 );
 
-CREATE TABLE IF NOT EXISTS PIN(
-    ID_PIN SERIAL,
-    PIN VARCHAR(255) NOT NULL,
-    DATE_EXPIRATION TIMESTAMP NOT NULL,
-    PRIMARY KEY(ID_PIN)
+CREATE TABLE token
+(
+    id_token        SERIAL,
+    token           VARCHAR(255) NOT NULL,
+    date_expiration TIMESTAMP    NOT NULL,
+    date_creation   TIMESTAMP    NOT NULL,
+    id_utilisateur  INTEGER      NOT NULL,
+    PRIMARY KEY (id_token),
+    UNIQUE (token),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur (id_utilisateur)
 );
 
-CREATE TABLE IF NOT EXISTS TENTATIVE_CONNECTION(
-    ID_TENTATIVE_CONNECTION SERIAL,
-    NOMBRE INTEGER NOT NULL,
-    PRIMARY KEY(ID_TENTATIVE_CONNECTION)
+CREATE TABLE pin
+(
+    id_pin          SERIAL,
+    pin             VARCHAR(255) NOT NULL,
+    date_expiration TIMESTAMP    NOT NULL,
+    date_creation   TIMESTAMP    NOT NULL,
+    id_utilisateur  INTEGER      NOT NULL,
+    PRIMARY KEY (id_pin),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur (id_utilisateur)
 );
 
-CREATE TABLE IF NOT EXISTS UTILISATEUR(
-    ID_UTILISATEUR SERIAL,
-    PSEUDO VARCHAR(50) NOT NULL,
-    EMAIL VARCHAR(100) NOT NULL,
-    PASSWORD VARCHAR(255) NOT NULL,
-    ID_TENTATIVE_CONNECTION INTEGER NOT NULL,
-    ID_PIN INTEGER,
-    ID_TOKEN INTEGER,
-    ID_ROLE INTEGER NOT NULL,
-    PRIMARY KEY(ID_UTILISATEUR),
-    UNIQUE(ID_TENTATIVE_CONNECTION),
-    UNIQUE(EMAIL),
-    FOREIGN KEY(ID_TENTATIVE_CONNECTION) REFERENCES TENTATIVE_CONNECTION(ID_TENTATIVE_CONNECTION),
-    FOREIGN KEY(ID_PIN) REFERENCES PIN(ID_PIN),
-    FOREIGN KEY(ID_TOKEN) REFERENCES TOKEN(ID_TOKEN),
-    FOREIGN KEY(ID_ROLE) REFERENCES ROLE(ID_ROLE)
+CREATE TABLE tentative_connection
+(
+    id_tentative_connection SERIAL,
+    nombre                  INTEGER   NOT NULL,
+    date_tentative          TIMESTAMP NOT NULL,
+    id_utilisateur          INTEGER   NOT NULL,
+    PRIMARY KEY (id_tentative_connection),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur (id_utilisateur)
 );
 
-INSERT INTO role (name) VALUES ('GUEST');
+
+insert into role(role) values   ('Membre simple'),
+                                ('Admin');
+
+insert into tentative_connection(nombre) values(0);
+
+-- itu16 io mot de passe io
+insert into utilisateur(id_utilisateur,pseudo,email,password,id_role) values(2,'Fifah','valeafifaliana@gmail.com','$2a$10$UXHGTlWb27E1kXYQMsNzyOc1Fb5fzI3w31d2Sm5aC9b0JGSov12PC',1);
+

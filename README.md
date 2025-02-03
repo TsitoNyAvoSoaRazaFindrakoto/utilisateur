@@ -21,6 +21,9 @@ Gestion des utilisateurs.
 
 Exécute la commande suivante :
 ```sh
+mvn spring-boot::run
+```
+```sh
 docker-compose up --build -d
 ```
 
