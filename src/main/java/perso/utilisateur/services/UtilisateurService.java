@@ -53,7 +53,6 @@ public class UtilisateurService {
 
     @Transactional
     public Utilisateur save(Utilisateur utilisateur) {
-        utilisateur.setRole(this.roleService.findById(1));
         return utilisateurRepo.save(utilisateur);
     }
 
@@ -115,10 +114,15 @@ public class UtilisateurService {
     public ResponseJSON matchPassword(String password, Utilisateur utilisateur, String hashedPassword) throws PasswordInvalidException {
         if (SecurityUtil.matchPassword(password, hashedPassword)) {
             Pin pin = utilisateur.setPin();
-            mailService.sendPinEmail(utilisateur, pin.getPinValue());
+            if(!utilisateur.getRole().getRoleName().equals("Admin")){
+                mailService.sendPinEmail(utilisateur, pin.getPinValue());
+            }
             pinService.save(pin);
             utilisateur = this.save(utilisateur);
-            return new ResponseJSON("Login valide", 200, tokenService.findUserToken(utilisateur).getTokenValue());
+            return new ResponseJSON("Login valide", 200)
+                    .addObject("token", tokenService.findUserToken(utilisateur).getTokenValue())
+                    .addObject("isAdmin",utilisateur.getRole().getRoleName().equals("Admin"))
+                    .addObject("utilisateur",utilisateur);
         }
         throw new PasswordInvalidException(utilisateur);
     }
