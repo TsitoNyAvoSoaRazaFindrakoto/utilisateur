@@ -31,7 +31,7 @@ public class Utilisateur {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,cascade = CascadeType.ALL)
     @JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
     @JsonView(POV.Public.class)
     private Role role;
