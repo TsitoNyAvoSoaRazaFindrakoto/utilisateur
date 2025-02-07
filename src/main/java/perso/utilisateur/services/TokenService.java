@@ -2,28 +2,35 @@ package perso.utilisateur.services;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
+import perso.utilisateur.models.inscription.Inscription;
+import perso.utilisateur.models.inscription.TokenInscription;
 import perso.utilisateur.repositories.TokenRepo;
 import perso.utilisateur.repositories.UtilisateurRepo;
+import perso.utilisateur.repositories.inscription.InscriptionRepo;
+import perso.utilisateur.repositories.inscription.TokenInscriptionRepo;
 
 @Service
+@AllArgsConstructor
 public class TokenService {
 	private final TokenRepo tokenRepo;
 	private final UtilisateurRepo utilisateurRepo;
-
-	public TokenService(TokenRepo tokenRepo, UtilisateurRepo utilisateurRepo) {
-		this.tokenRepo = tokenRepo;
-		this.utilisateurRepo = utilisateurRepo;
-	}
+	private final TokenInscriptionRepo tokenInscriptionRepo;
 
 	private Token createToken(Utilisateur utilisateur){
 		Token t = new Token(utilisateur);
 		return tokenRepo.save(t);
+	}
+
+	private TokenInscription createToken(Inscription utilisateur){
+		TokenInscription t = new TokenInscription(utilisateur);
+		return tokenInscriptionRepo.save(t);
 	}
 
 	public Token save(Token token){
@@ -45,6 +52,14 @@ public class TokenService {
 		return this.tokenRepo.findTokenByUtilisateur(utilisateur.getIdUtilisateur()).orElse(new Token(utilisateur));
 	}
 
+	public TokenInscription findUserToken(Inscription utilisateur){
+		TokenInscription token=this.tokenInscriptionRepo.findTokenByUtilisateur(utilisateur.getIdInscription()).orElse(null);
+		if(token==null){
+			return tokenInscriptionRepo.save(new TokenInscription(utilisateur));
+		}
+		return token;
+	}
+
 	@Transactional
 	public Token reassignUserToken(Utilisateur u){
 		if (u == null || !isTokenValid(this.findUserToken(u))) {
@@ -56,6 +71,13 @@ public class TokenService {
 	@Transactional
 	public Token createUserToken(Utilisateur u){
 		return assignUserToken(u);
+	}
+
+	@Transactional
+	public TokenInscription createUserToken(Inscription u){
+		TokenInscription newT = createToken(u);
+		tokenInscriptionRepo.save(newT);
+		return newT;
 	}
 
 	@Transactional

@@ -11,7 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import perso.utilisateur.dto.*;
+import perso.utilisateur.exception.TokenExpiredException;
+import perso.utilisateur.exception.TokenNotFoundException;
+import perso.utilisateur.exception.UserAlreadyExistException;
 import perso.utilisateur.models.Utilisateur;
+import perso.utilisateur.models.inscription.Inscription;
 import perso.utilisateur.other.POV;
 import perso.utilisateur.services.InscriptionService;
 import perso.utilisateur.services.MailService;
@@ -41,6 +45,7 @@ public class UtilisateurController {
             @ApiResponse(responseCode = "401", description = "Email non reconnue ou mot de passe incorrecte", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class)))
     })
     @PostMapping("/login")
+    @JsonView(POV.Public.class)
     public ResponseJSON login(
             @RequestBody(description = "Email et mot de passe", required = false, content = @Content(schema = @Schema(implementation = LoginDTO.class))) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
         return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
@@ -61,7 +66,7 @@ public class UtilisateurController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
                     ),
                     @ApiResponse(
-                            responseCode = "401",
+                            responseCode = "400",
                             description = "Code PIN expiré",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
                     )
@@ -104,7 +109,7 @@ public class UtilisateurController {
             required = false,
             content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
     ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO) {
-        return inscriptionService.sendValidationMail(Utilisateur.from(inscriptionDTO));
+        return inscriptionService.sendValidationMail(Inscription.from(inscriptionDTO));
     }
 
     @Operation(

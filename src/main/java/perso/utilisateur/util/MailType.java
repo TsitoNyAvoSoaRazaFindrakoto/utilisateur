@@ -9,20 +9,31 @@ import java.util.Map;
 import org.springframework.core.io.ClassPathResource;
 
 import perso.utilisateur.models.Utilisateur;
+import perso.utilisateur.models.inscription.Inscription;
+import perso.utilisateur.models.inscription.TokenInscription;
 import perso.utilisateur.services.TokenService;
 
 public class MailType {
 	String path, subject;
-	Utilisateur to;
+	String to;
 	private HashMap<String, Object> data = new HashMap<>();
 
 	public static MailType pin(Utilisateur to, String pin, TokenService tokenService) {
 		MailType mt = new MailType();
-		mt.to = to;
+		mt.to = to.getEmail();
 		mt.path = "mail/pinMail.html";
 		mt.subject = "Login Validation";
 		mt.data.put("pin", pin);
 		tokenService.createUserToken(to);
+		return mt;
+	}
+
+	public static MailType validation(Inscription to, TokenInscription tokenInscription) {
+		MailType mt = new MailType();
+		mt.to = to.getEmail();
+		mt.path = "mail/validation.html";
+		mt.subject = "Inscription Validation";
+		mt.data.put("validation_url", tokenInscription.getUrl());
 		return mt;
 	}
 
@@ -31,7 +42,7 @@ public class MailType {
 	}
 
 	public String getTargetEmail() {
-		return to.getEmail();
+		return to;
 	}
 
 	public void addData(String key, Object value) {
