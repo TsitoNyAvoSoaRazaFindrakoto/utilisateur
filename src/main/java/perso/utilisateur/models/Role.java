@@ -25,4 +25,8 @@ public class Role {
 	public Role(String role){
 		this.roleName=role;
 	}
+
+	public Role(Integer idRole){
+		this.idRole=idRole;
+	}
 }

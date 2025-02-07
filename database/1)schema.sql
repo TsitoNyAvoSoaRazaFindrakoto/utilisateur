@@ -56,3 +56,23 @@ CREATE TABLE tentative_connection
     PRIMARY KEY (id_tentative_connection),
     FOREIGN KEY (id_utilisateur) REFERENCES utilisateur (id_utilisateur)
 );
+
+CREATE TABLE inscription(
+                            id_inscription SERIAL,
+                            pseudo VARCHAR(50)  NOT NULL,
+                            email VARCHAR(100)  NOT NULL,
+                            password VARCHAR(255)  NOT NULL,
+                            PRIMARY KEY(id_inscription),
+                            UNIQUE(email)
+);
+
+CREATE TABLE token_inscription(
+                                  id_token_inscription SERIAL,
+                                  token VARCHAR(255)  NOT NULL,
+                                  date_expiration TIMESTAMP NOT NULL,
+                                  date_creation TIMESTAMP NOT NULL,
+                                  id_inscription INTEGER NOT NULL,
+                                  PRIMARY KEY(id_token_inscription),
+                                  UNIQUE(token),
+                                  FOREIGN KEY(id_inscription) REFERENCES inscription(id_inscription)
+);

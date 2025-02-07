@@ -46,6 +46,7 @@ public class UtilisateurService {
         return new ResponseJSON("Pin en attente de validation", 200, tokenService.findUserToken(utilisateur).getTokenValue());
     }
 
+    @Transactional
     public ResponseJSON testLogin(String email, String password) throws EmailNotFoundException, PasswordInvalidException {
         Utilisateur utilisateur = this.findByEmail(email);
         return matchPassword(password, utilisateur, utilisateur.getPassword());
@@ -163,7 +164,7 @@ public class UtilisateurService {
             mailService.sendPinEmail(utilisateur, newPin.getPinValue());
             pinService.save(newPin);
             utilisateur=utilisateurRepo.save(utilisateur);
-            return new ResponseJSON(ex.getMessage(), 401,tokenService.findUserToken(utilisateur).getTokenValue());
+            return new ResponseJSON(ex.getMessage(), 400,tokenService.findUserToken(utilisateur).getTokenValue());
             //return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         } catch (WrongPinException ex) {
             return increaseAttempt(ex.getUtilisateur(), ex.getMessage());
