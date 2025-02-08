@@ -1,32 +1,22 @@
-# Étape 1 : Construction de l'application
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+# Utilisation directe de l'image Maven avec JDK 17
+FROM maven:3.9.6-jdk-17 AS app
 
 WORKDIR /app
 
-# Copier uniquement les fichiers de configuration pour bénéficier du cache Maven
+# Copier uniquement pom.xml pour optimiser le cache Maven
 COPY pom.xml ./
-COPY src ./src
 
-# Télécharger les dépendances en les mettant en cache
+# Télécharger les dépendances et les stocker dans un volume pour éviter de les retélécharger
 RUN mvn dependency:go-offline
 
-# Compiler le projet
-RUN mvn clean package -DskipTests
+# Copier tout le code source
+COPY src ./src
 
-# Étape 2 : Image minimale pour exécuter l'application
-FROM eclipse-temurin:17-jdk AS runtime
-
-WORKDIR /app
-
-# Copier le JAR compilé depuis l'étape de build
-COPY --from=builder /app/target/utilisateur-0.0.1-SNAPSHOT.jar application.jar
-COPY init-scripts/init.sql .
-COPY entrypoint.sh /entrypoint.sh
-COPY .env /app/.env
-
-RUN chmod +x /entrypoint.sh
-
-# Définir le script comme point d'entrée
-ENTRYPOINT ["/entrypoint.sh"]
-
+# Exposer le port de l'application
 EXPOSE 8082
+
+# Définir un volume pour stocker le cache des dépendances Maven
+VOLUME /root/.m2
+
+# Lancer la compilation et exécuter l'application directement
+CMD ["mvn", "clean", "spring-boot:run"]
