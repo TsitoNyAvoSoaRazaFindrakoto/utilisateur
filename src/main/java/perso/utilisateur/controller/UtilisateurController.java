@@ -141,9 +141,19 @@ public class UtilisateurController {
         return utilisateurService.getByIdWithToken(idUtilisateur);
     }
 
-    @GetMapping("/pin/request/{idUtilisateur}")
-    public ResponseJSON requestPin(@PathVariable("idUtilisateur")int idUtilisateur){
-        return utilisateurService.pinRequest(idUtilisateur);
+    @GetMapping("/pin/request/{token}")
+    public ResponseJSON requestPin(@PathVariable("token")String token){
+        return utilisateurService.pinRequest(token);
+    }
+
+    @GetMapping("/test-token")
+    public ResponseJSON testToken(@RequestParam("idUtilisateur")Integer idUtilisateur,@RequestParam("token")String token){
+        return utilisateurService.testToken(idUtilisateur,token);
+    }
+
+    @PutMapping
+    public ResponseJSON updateUtilisateur(@org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO){
+        return utilisateurService.updateUtilisateur(inscriptionDTO);
     }
 
     @PostMapping("/reset-token")
