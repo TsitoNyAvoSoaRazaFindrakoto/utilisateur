@@ -20,7 +20,7 @@ public class FirebaseConfig {
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://crypta-d5e13.firebaseio.com")
+                    .setDatabaseUrl("https://crypta-d5e13-default-rtdb.firebaseio.com")
                     .build();
 
             FirebaseApp.initializeApp(options);
