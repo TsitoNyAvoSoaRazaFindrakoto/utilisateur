@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import perso.utilisateur.exception.TokenExpiredException;
+import perso.utilisateur.exception.TokenNotFoundException;
 import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.models.inscription.Inscription;
@@ -70,7 +72,7 @@ public class TokenService {
 
 	@Transactional
 	public Token createUserToken(Utilisateur u){
-		return assignUserToken(u);
+		return createToken(u);
 	}
 
 	@Transactional
@@ -88,9 +90,19 @@ public class TokenService {
 	}
 
 	@Transactional
-	public Token assignUserToken(Utilisateur u){
-		Token newT = createToken(u);
-		tokenRepo.save(newT);
-		return newT;
+	public Token findByToken(String tokenValue) throws TokenNotFoundException, TokenExpiredException {
+		Token token=tokenRepo.findToken(tokenValue).orElseThrow(TokenNotFoundException::new);
+		Utilisateur utilisateur=token.getUtilisateur();
+		if(!this.findUserToken(utilisateur).getTokenValue().equals(tokenValue)) {
+			throw new TokenExpiredException();
+		}
+		if(token.getDateExpiration().isBefore(LocalDateTime.now())){
+			throw new TokenExpiredException();
+		}
+		return token;
+	}
+
+	public Token findByTokenIdUtilisateur(Integer idUtilisateur, String tokenValue) {
+		return this.tokenRepo.findByTokenIdUtilisateur(idUtilisateur,tokenValue).orElseThrow(TokenNotFoundException::new);
 	}
 }
