@@ -4,6 +4,9 @@ import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import perso.utilisateur.dto.InscriptionDTO;
 import perso.utilisateur.dto.ResponseJSON;
 import perso.utilisateur.dto.UtilisateurFirestore;
 import perso.utilisateur.exception.*;
@@ -37,13 +40,14 @@ public class UtilisateurService {
     }
 
     @Transactional
-    public ResponseJSON pinRequest(int idUtilisateur) {
-        Utilisateur utilisateur = this.utilisateurRepo.findById(idUtilisateur).orElseThrow(() -> new RuntimeException("Id Utilisateur non reconnue"));
+    public ResponseJSON pinRequest(String tokenValue) {
+        Token token = this.tokenService.findByToken(tokenValue);
+        Utilisateur utilisateur = token.getUtilisateur();
         Pin pin = utilisateur.setPin();
         mailService.sendPinEmail(utilisateur, pin.getPinValue());
         pinService.save(pin);
         utilisateur = this.save(utilisateur);
-        return new ResponseJSON("Pin en attente de validation", 200, tokenService.findUserToken(utilisateur).getTokenValue());
+        return new ResponseJSON("Pin en attente de validation", 200, tokenService.createUserToken(utilisateur).getTokenValue());
     }
 
     @Transactional
@@ -121,7 +125,7 @@ public class UtilisateurService {
             pinService.save(pin);
             utilisateur = this.save(utilisateur);
             return new ResponseJSON("Login valide", 200)
-                    .addObject("token", tokenService.findUserToken(utilisateur).getTokenValue())
+                    .addObject("token", tokenService.createUserToken(utilisateur).getTokenValue())
                     .addObject("isAdmin",utilisateur.getRole().getRoleName().equals("Admin"))
                     .addObject("utilisateur",utilisateur);
         }
@@ -168,6 +172,35 @@ public class UtilisateurService {
             //return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         } catch (WrongPinException ex) {
             return increaseAttempt(ex.getUtilisateur(), ex.getMessage());
+        }
+    }
+
+    public ResponseJSON updateUtilisateur(InscriptionDTO inscriptionDTO) {
+        try{
+            Token token = this.tokenService.findByToken(inscriptionDTO.getToken());
+            Utilisateur utilisateur=token.getUtilisateur();
+            utilisateur.setPseudo(inscriptionDTO.getPseudo());
+            if(!inscriptionDTO.getPassword().equals("")){
+                utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
+            }
+            utilisateurRepo.save(utilisateur);
+            return new ResponseJSON("Modification réussie",200,tokenService.createUserToken(utilisateur).getTokenValue());
+        }
+        catch (TokenExpiredException | TokenNotFoundException e){
+            return new ResponseJSON(e.getMessage(),400);
+        }
+    }
+
+    public ResponseJSON testToken(Integer idUtilisateur, String tokenValue) {
+        try{
+            Token token=this.tokenService.findByTokenIdUtilisateur(idUtilisateur,tokenValue);
+            if(token.getDateExpiration().isBefore(LocalDateTime.now())){
+                return new ResponseJSON("Token expiré",400);
+            }
+            return new ResponseJSON("Token validé",200,this.tokenService.createUserToken(token.getUtilisateur()).getTokenValue());
+        }
+        catch (TokenNotFoundException e){
+            return new ResponseJSON(e.getMessage(),400);
         }
     }
 }
