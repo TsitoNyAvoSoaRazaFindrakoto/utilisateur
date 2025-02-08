@@ -11,17 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import perso.utilisateur.dto.*;
-import perso.utilisateur.exception.TokenExpiredException;
-import perso.utilisateur.exception.TokenNotFoundException;
-import perso.utilisateur.exception.UserAlreadyExistException;
-import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.models.inscription.Inscription;
 import perso.utilisateur.other.POV;
 import perso.utilisateur.services.InscriptionService;
-import perso.utilisateur.services.MailService;
 import perso.utilisateur.services.TokenService;
 import perso.utilisateur.services.UtilisateurService;
-import perso.utilisateur.services.firebase.FirestoreService;
 import org.springframework.web.bind.annotation.PostMapping;
 
 
@@ -33,12 +27,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class UtilisateurController {
     private InscriptionService inscriptionService;
 
-    private MailService mailService;
-
     private final UtilisateurService utilisateurService;
     private final TokenService tokenService;
-    private FirestoreService firestoreService;
-
 
     @Operation(summary = "Connexion utilisateur", description = "Permet à un utilisateur de se connecter avec son email et son mot de passe", responses = {
             @ApiResponse(responseCode = "200", description = "Verification code PIN", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))),
@@ -141,9 +131,9 @@ public class UtilisateurController {
         return utilisateurService.getByIdWithToken(idUtilisateur);
     }
 
-    @GetMapping("/pin/request/{idUtilisateur}")
-    public ResponseJSON requestPin(@PathVariable("idUtilisateur")int idUtilisateur){
-        return utilisateurService.pinRequest(idUtilisateur);
+    @GetMapping("/pin/request/{token}")
+    public ResponseJSON requestPin(@PathVariable("token")String token){
+        return utilisateurService.pinRequest(token);
     }
 
     @PostMapping("/reset-token")

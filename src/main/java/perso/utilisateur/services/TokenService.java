@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import perso.utilisateur.exception.TokenNotFoundException;
 import perso.utilisateur.models.Token;
 import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.models.inscription.Inscription;
@@ -31,6 +32,11 @@ public class TokenService {
 	private TokenInscription createToken(Inscription utilisateur){
 		TokenInscription t = new TokenInscription(utilisateur);
 		return tokenInscriptionRepo.save(t);
+	}
+
+	@Transactional
+	public Token findToken(String token)throws TokenNotFoundException{
+		return this.tokenRepo.findUtilisateurByToken(token).orElseThrow(TokenNotFoundException::new);
 	}
 
 	public Token save(Token token){

@@ -7,7 +7,6 @@ import com.google.firebase.FirebaseApp;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Configuration

@@ -15,4 +15,8 @@ public class RoleService {
     public Role findById(Integer idRole){
         return roleRepo.findById(idRole).orElseThrow(()->new RuntimeException("Id role non existante"));
     }
+
+    public Role findByRole(String role){
+        return roleRepo.findByRole(role).orElseThrow(()->new RuntimeException("Role non existante"));
+    }
 }

@@ -21,6 +21,7 @@ public class PinListener {
     @PrePersist
     @PreUpdate
     public void prePersist(Pin pin){
+        System.out.println(pin.getPinValue());
         pin.setPinValue(SecurityUtil.hashPassword(pin.getPinValue()));
         pin.setDateExpiration(LocalDateTime.now().plusSeconds(parameterSercurity.getAuthentificationPinDuree()));
     }

@@ -24,9 +24,9 @@ import java.util.Optional;
 public class UtilisateurService {
     private UtilisateurRepo utilisateurRepo;
     private TentativeConnectionService tentativeConnectionService;
-    private RoleService roleService;
     private TokenService tokenService;
     private PinService pinService;
+    private RoleService roleService;
 
     private MailService mailService;
     private FirestoreService firestoreService;
@@ -37,8 +37,14 @@ public class UtilisateurService {
     }
 
     @Transactional
-    public ResponseJSON pinRequest(int idUtilisateur) {
-        Utilisateur utilisateur = this.utilisateurRepo.findById(idUtilisateur).orElseThrow(() -> new RuntimeException("Id Utilisateur non reconnue"));
+    public ResponseJSON pinRequest(String tokenValue)throws TokenExpiredException,TokenNotFoundException {
+        Token token = this.tokenService.findToken(tokenValue);
+
+        if(token.getDateExpiration().isBefore(LocalDateTime.now())){
+            throw new TokenExpiredException();
+        }
+
+        Utilisateur utilisateur=token.getUtilisateur();
         Pin pin = utilisateur.setPin();
         mailService.sendPinEmail(utilisateur, pin.getPinValue());
         pinService.save(pin);
@@ -91,7 +97,7 @@ public class UtilisateurService {
     public ResponseJSON loginFirestore(String email, String password) {
         try {
             UtilisateurFirestore utilisateurFirestore = firestoreService.findUtilisateur(email);
-            Utilisateur utilisateur = utilisateurFirestore.createUser();
+            Utilisateur utilisateur = utilisateurFirestore.createUser(roleService.findByRole(utilisateurFirestore.getRole()));
             utilisateur = this.inscriptionService.savePrepare(utilisateur);
             if (SecurityUtil.matchPassword(password, utilisateur.getPassword())) {
                 Pin pin = utilisateur.setPin();

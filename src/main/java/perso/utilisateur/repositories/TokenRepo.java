@@ -14,4 +14,7 @@ import java.util.Optional;
 public interface TokenRepo extends JpaRepository<Token,Integer>{
 	@Query("select t from Token t where t.dateCreation in (select max(t.dateCreation) from Token t where t.utilisateur.idUtilisateur = :idUtilisateur)")
 	Optional<Token> findTokenByUtilisateur(@Param("idUtilisateur")Integer idUtilisateur);
+
+	@Query("select t from Token t where t.tokenValue = :token")
+	Optional<Token> findUtilisateurByToken(@Param("token") String token);
 }
