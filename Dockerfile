@@ -1,5 +1,5 @@
-# Utilisation directe de l'image Maven avec JDK 17
-FROM maven:3.9.6-jdk-17 AS app
+# Utilisation d'une image Maven avec JDK 17 (Eclipse Temurin)
+FROM maven:3.9.6-eclipse-temurin-17 AS app
 
 WORKDIR /app
 

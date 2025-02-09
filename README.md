@@ -10,41 +10,18 @@ Gestion des utilisateurs.
    POSTGRES_PASSWORD=fifaliana
    POSTGRES_DB=utilisateur
    ```
-2. Modifier le mot de passe PostgreSQL dans `entrypoint.sh` :
-   ```sh
-   PGPASSWORD=fifaliana
-   ```
+
 
 ## Déploiement et Lancement
 
 ## Étapes d'exécution
 
-### 1. Compiler et générer le `.jar` du projet
-Avant de déployer l'application, assurez-vous de compiler le projet et de générer le fichier `.jar` :
-
-```sh
-mvn clean package
-```
-
-Cette commande effectue une compilation propre et génère le `.jar` dans le dossier `target/`.
-
-### 2. Déployer l'application avec Docker
+### 1. Déployer l'application avec Docker
 Une fois le `.jar` généré, utilisez Docker Compose pour construire et exécuter les conteneurs :
 
 ```sh
-docker-compose up --build -d
+docker-compose up --build 
 ```
-
-### 3. Exécuter directement l'application (optionnel)
-Si vous souhaitez exécuter l'application sans passer par Docker, utilisez :
-
-```sh
-mvn spring-boot:run
-```
-
-Cela démarre directement l'application Spring Boot sans la compiler en `.jar`.
-
----
 
 Votre application est maintenant déployée avec Docker ! 🚀
 
