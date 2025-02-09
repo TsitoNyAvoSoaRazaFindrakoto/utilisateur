@@ -2,16 +2,26 @@ package perso.utilisateur.util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Random;
 import java.util.UUID;
+import java.security.MessageDigest;
 
 public final class SecurityUtil {
-    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     private static final Random random = new Random();
 
     public static String hashPassword(String password){
-        return encoder.encode(password);
+        try{
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        }
+        catch(NoSuchAlgorithmException e){
+            throw new RuntimeException("Easter egg mahafinaritra");
+        }
     }
 
     public static String generatePin(){
@@ -27,6 +37,6 @@ public final class SecurityUtil {
     }
 
     public static boolean matchPassword(String rawPassword,String hashedPassword){
-        return encoder.matches(rawPassword,hashedPassword);
+        return hashPassword(rawPassword).equals(hashedPassword);
     }
 }

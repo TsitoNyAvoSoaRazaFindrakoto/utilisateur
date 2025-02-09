@@ -1,6 +1,5 @@
 package perso.utilisateur.dto;
 
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,9 +19,7 @@ public class UtilisateurFirestore {
     private String email;
     private String password;
     private String pin;
-    private Token token;
     private String role;
-    private Long tentativeConnection;
 
     public UtilisateurFirestore(Map<String,Object> map){
         this.idUtilisateur=((Long)map.get("idUtilisateur")).intValue();
@@ -31,10 +28,7 @@ public class UtilisateurFirestore {
         this.password=(String)map.get("password");
         this.pin=(String)map.get("pin");
         this.email=(String)map.get("email");
-        Map<String,Object> token=(Map<String, Object>) map.get("token");
-        this.token=new Token((String)token.get("token"),((Timestamp) token.get("dateExpiration")).toSqlTimestamp().toLocalDateTime());
         this.role=(String)map.get("role");
-        this.tentativeConnection=(Long)map.get("tentativeConnection");
     }
 
     public static UtilisateurFirestore turnIntoUtilisateurFirestore(QueryDocumentSnapshot document){
@@ -51,10 +45,7 @@ public class UtilisateurFirestore {
         this.password=(String)map.get("password");
         this.pin=(String)map.get("pin");
         this.email=(String)map.get("email");
-        Map<String,Object> token=(Map<String, Object>) map.get("token");
-        this.token=new Token((String)token.get("token"),((Timestamp) token.get("dateExpiration")).toSqlTimestamp().toLocalDateTime());
         this.role=(String)map.get("role");
-        this.tentativeConnection=(Long)map.get("tentativeConnection");
         return this;
     }
 

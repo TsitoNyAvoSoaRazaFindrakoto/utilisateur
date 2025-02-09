@@ -8,4 +8,5 @@ public class InscriptionDTO {
     private String pseudo;
     private String email;
     private String password;
+    private String token;
 }
