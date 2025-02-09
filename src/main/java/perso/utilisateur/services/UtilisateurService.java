@@ -41,13 +41,18 @@ public class UtilisateurService {
 
     @Transactional
     public ResponseJSON pinRequest(String tokenValue) {
-        Token token = this.tokenService.findByToken(tokenValue);
-        Utilisateur utilisateur = token.getUtilisateur();
-        Pin pin = utilisateur.setPin();
-        mailService.sendPinEmail(utilisateur, pin.getPinValue());
-        pinService.save(pin);
-        utilisateur = this.save(utilisateur);
-        return new ResponseJSON("Pin en attente de validation", 200, tokenService.createUserToken(utilisateur).getTokenValue());
+        try {
+            Token token = this.tokenService.findByToken(tokenValue);
+            Utilisateur utilisateur = token.getUtilisateur();
+            Pin pin = utilisateur.setPin();
+            mailService.sendPinEmail(utilisateur, pin.getPinValue());
+            pinService.save(pin);
+            utilisateur = this.save(utilisateur);
+            return new ResponseJSON("Pin en attente de validation", 200, tokenService.createUserToken(utilisateur).getTokenValue());
+        }
+        catch (TokenNotFoundException | TokenExpiredException e){
+            return new ResponseJSON("Token expiré",400);
+        }
     }
 
     @Transactional
@@ -119,15 +124,15 @@ public class UtilisateurService {
     public ResponseJSON matchPassword(String password, Utilisateur utilisateur, String hashedPassword) throws PasswordInvalidException {
         if (SecurityUtil.matchPassword(password, hashedPassword)) {
             Pin pin = utilisateur.setPin();
-            if(!utilisateur.getRole().getRoleName().equals("Admin")){
+            if (!utilisateur.getRole().getRoleName().equals("Admin")) {
                 mailService.sendPinEmail(utilisateur, pin.getPinValue());
             }
             pinService.save(pin);
             utilisateur = this.save(utilisateur);
             return new ResponseJSON("Login valide", 200)
                     .addObject("token", tokenService.createUserToken(utilisateur).getTokenValue())
-                    .addObject("isAdmin",utilisateur.getRole().getRoleName().equals("Admin"))
-                    .addObject("utilisateur",utilisateur);
+                    .addObject("isAdmin", utilisateur.getRole().getRoleName().equals("Admin"))
+                    .addObject("utilisateur", utilisateur);
         }
         throw new PasswordInvalidException(utilisateur);
     }
@@ -167,8 +172,8 @@ public class UtilisateurService {
             Pin newPin = utilisateur.setPin();
             mailService.sendPinEmail(utilisateur, newPin.getPinValue());
             pinService.save(newPin);
-            utilisateur=utilisateurRepo.save(utilisateur);
-            return new ResponseJSON(ex.getMessage(), 400,tokenService.findUserToken(utilisateur).getTokenValue());
+            utilisateur = utilisateurRepo.save(utilisateur);
+            return new ResponseJSON(ex.getMessage(), 400, tokenService.findUserToken(utilisateur).getTokenValue());
             //return increaseAttempt(ex.getUtilisateur(),ex.getMessage());
         } catch (WrongPinException ex) {
             return increaseAttempt(ex.getUtilisateur(), ex.getMessage());
@@ -176,31 +181,29 @@ public class UtilisateurService {
     }
 
     public ResponseJSON updateUtilisateur(InscriptionDTO inscriptionDTO) {
-        try{
+        try {
             Token token = this.tokenService.findByToken(inscriptionDTO.getToken());
-            Utilisateur utilisateur=token.getUtilisateur();
+            Utilisateur utilisateur = token.getUtilisateur();
             utilisateur.setPseudo(inscriptionDTO.getPseudo());
-            if(!inscriptionDTO.getPassword().equals("")){
+            if (!inscriptionDTO.getPassword().equals("")) {
                 utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
             }
             utilisateurRepo.save(utilisateur);
-            return new ResponseJSON("Modification réussie",200,tokenService.createUserToken(utilisateur).getTokenValue());
-        }
-        catch (TokenExpiredException | TokenNotFoundException e){
-            return new ResponseJSON(e.getMessage(),400);
+            return new ResponseJSON("Modification réussie", 200, tokenService.createUserToken(utilisateur).getTokenValue());
+        } catch (TokenExpiredException | TokenNotFoundException e) {
+            return new ResponseJSON(e.getMessage(), 400);
         }
     }
 
     public ResponseJSON testToken(Integer idUtilisateur, String tokenValue) {
-        try{
-            Token token=this.tokenService.findByTokenIdUtilisateur(idUtilisateur,tokenValue);
-            if(token.getDateExpiration().isBefore(LocalDateTime.now())){
-                return new ResponseJSON("Token expiré",400);
+        try {
+            Token token = this.tokenService.findByTokenIdUtilisateur(idUtilisateur, tokenValue);
+            if (token.getDateExpiration().isBefore(LocalDateTime.now())) {
+                return new ResponseJSON("Token expiré", 400);
             }
-            return new ResponseJSON("Token validé",200,this.tokenService.createUserToken(token.getUtilisateur()).getTokenValue());
-        }
-        catch (TokenNotFoundException e){
-            return new ResponseJSON(e.getMessage(),400);
+            return new ResponseJSON("Token validé", 200, this.tokenService.createUserToken(token.getUtilisateur()).getTokenValue());
+        } catch (TokenNotFoundException e) {
+            return new ResponseJSON(e.getMessage(), 400);
         }
     }
 }
