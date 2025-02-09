@@ -156,8 +156,7 @@ public class UtilisateurService {
             if (pinBase.getDateExpiration().isBefore(LocalDateTime.now())) {
                 throw new PinExpiredException(utilisateur);
             }
-            tokenService.reassignUserToken(utilisateur);
-            return new ResponseJSON("Code pin valide", 200, utilisateur);
+            return new ResponseJSON("Code pin valide", 200).addObject("utilisateur",utilisateur).addObject("token",tokenService.createUserToken(utilisateur).getTokenValue());
         }
         throw new WrongPinException(utilisateur);
     }
