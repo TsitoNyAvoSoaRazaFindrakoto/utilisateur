@@ -141,18 +141,70 @@ public class UtilisateurController {
         return utilisateurService.getByIdWithToken(idUtilisateur);
     }
 
+    @Operation(
+            summary = "Requête de pin",
+            description = "Permet d'envoyer une email de pin pour faire une validation",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Email envoyé",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Token expiré ou non valide",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    )
+            }
+    )
     @GetMapping("/pin/request/{token}")
-    public ResponseJSON requestPin(@PathVariable("token")String token){
+    public ResponseJSON requestPin(@Parameter(description = "Token", example = "fd2dks1-erc3iu-sfdtfsd1", required = true)@PathVariable("token")String token){
         return utilisateurService.pinRequest(token);
     }
 
+    @Operation(
+            summary = "Vérification token",
+            description = "Vérifie si une token est utilisable",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Token validé",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Token expiré ou non valide",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    )
+            }
+    )
     @GetMapping("/test-token")
-    public ResponseJSON testToken(@RequestParam("idUtilisateur")Integer idUtilisateur,@RequestParam("token")String token){
+    public ResponseJSON testToken(@Parameter(description = "idUtilisateur a teste", example = "1", required = true)@RequestParam("idUtilisateur")Integer idUtilisateur,@Parameter(description = "Token de l'utilisateur", example = "fd2dks1-erc3iu-sfdtfsd1", required = true)@RequestParam("token")String token){
         return utilisateurService.testToken(idUtilisateur,token);
     }
 
+    @Operation(
+            summary = "Modification utilisateur",
+            description = "Modification des informations d'un utilisateur",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Modification effectué",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Token expiré ou non valide",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJSON.class))
+                    )
+            }
+    )
     @PutMapping
-    public ResponseJSON updateUtilisateur(@org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO){
+    public ResponseJSON updateUtilisateur(@RequestBody(
+            description = "Modification d'une utilisateur",
+            required = true,
+            content = @Content(schema = @Schema(implementation = InscriptionDTO.class))
+    ) @org.springframework.web.bind.annotation.RequestBody InscriptionDTO inscriptionDTO){
         return utilisateurService.updateUtilisateur(inscriptionDTO);
     }
 
@@ -161,4 +213,3 @@ public class UtilisateurController {
         return tokenService.reassignUserToken(token).getTokenValue();
     }
 }
-
