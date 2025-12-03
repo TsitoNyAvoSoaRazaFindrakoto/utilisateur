@@ -13,4 +13,4 @@ insert into utilisateur(id_utilisateur,pseudo,email,password,id_role) values(6,'
 insert into utilisateur(id_utilisateur,pseudo,email,password,id_role) values(7,'Amy','Amy@gmail.com','ea624c9233a63ef464f23b1c3201e44a70e57463908a9440c0e408885237ab67',1);
 insert into utilisateur(id_utilisateur,pseudo,email,password,id_role) values(8,'Light','Light@gmail.com','ea624c9233a63ef464f23b1c3201e44a70e57463908a9440c0e408885237ab67',1);
 insert into utilisateur(id_utilisateur,pseudo,email,password,id_role) values(9,'Bolivia','Bolivia@gmail.com','ea624c9233a63ef464f23b1c3201e44a70e57463908a9440c0e408885237ab67',1);
-insert into utilisateur(id_utilisateur,pseudo,email,password,id_role) values(10,'Admin','admin@gmail.com','ea624c9233a63ef464f23b1c3201e44a70e57463908a9440c0e408885237ab67',1);
+insert into utilisateur(id_utilisateur,pseudo,email,password,id_role) values(10,'Admin','admin@gmail.com','ea624c9233a63ef464f23b1c3201e44a70e57463908a9440c0e408885237ab67',2);

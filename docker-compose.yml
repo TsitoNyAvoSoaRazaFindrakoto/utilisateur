@@ -1,7 +1,13 @@
 version: '3.8'
 
+networks:
+  cloud-network:
+    external: true
+
 services:
   database:
+    networks:
+      - cloud-network
     container_name: utilisateur-database
     image: postgres:15-alpine
     restart: always
@@ -21,10 +27,12 @@ services:
       retries: 5
 
   app:
+    networks:
+      - cloud-network
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: utilisateur-app
+    container_name: app
     restart: always
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${POSTGRES_DATABASE}
@@ -34,7 +42,7 @@ services:
       SPRING_MAIL_HOST: ${SPRING_MAIL_HOST}
       SPRING_MAIL_PORT: ${SPRING_MAIL_PORT}
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+      - "8082:8082"
     depends_on:
       database:
         condition: service_healthy

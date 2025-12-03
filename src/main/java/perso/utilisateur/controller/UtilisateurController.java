@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import perso.utilisateur.dto.*;
 import perso.utilisateur.exception.TokenExpiredException;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("/utilisateur")
 @AllArgsConstructor
 @Tag(name = "Utilisateur", description = "API pour gérer les utilisateurs")
+@Slf4j
 public class UtilisateurController {
     private InscriptionService inscriptionService;
 
@@ -48,6 +50,7 @@ public class UtilisateurController {
     @JsonView(POV.Public.class)
     public ResponseJSON login(
             @RequestBody(description = "Email et mot de passe", required = false, content = @Content(schema = @Schema(implementation = LoginDTO.class))) @org.springframework.web.bind.annotation.RequestBody LoginDTO loginDTO) {
+        log.info("TONGA");
         return utilisateurService.login(loginDTO.getEmail(), loginDTO.getPassword());
     }
 

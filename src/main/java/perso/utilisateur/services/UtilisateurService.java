@@ -2,6 +2,7 @@ package perso.utilisateur.services;
 
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UtilisateurService {
     private UtilisateurRepo utilisateurRepo;
     private TentativeConnectionService tentativeConnectionService;
@@ -87,10 +89,13 @@ public class UtilisateurService {
     @Transactional
     public ResponseJSON login(String email, String password) throws RuntimeException {
         try {
+            log.info("LOGIN");
             return this.testLogin(email, password);
         } catch (PasswordInvalidException exception) {
+            log.info("INVALIDE");
             return this.increaseAttempt(exception.getUtilisateur(), exception.getMessage());
         } catch (EmailNotFoundException exception) {
+            log.info("EMAIL NOT FOUND");
             return this.loginFirestore(email, password);
         }
 
