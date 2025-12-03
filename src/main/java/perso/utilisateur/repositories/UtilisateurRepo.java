@@ -11,15 +11,12 @@ import java.util.Optional;
 import java.util.List;
 
 public interface UtilisateurRepo extends JpaRepository<Utilisateur, Integer> {
-	@Query("select u from Utilisateur u inner join u.tentativeConnection t where u.email = :email")
+	@Query("select u from Utilisateur u where u.email = :email")
 	public Optional<Utilisateur> findByEmail(@Param("email") String email);
 
-	List<Utilisateur> findByToken(Token token);
-
-	@Query(value = "SELECT u.* " +
-			"FROM utilisateur u " +
-			"INNER JOIN token t ON u.id_token = t.id_token " +
-			"WHERE t.token = :tokenValue", nativeQuery = true)
+	@Query("""
+			select t.utilisateur from Token t where t.tokenValue = :tokenValue
+			""")
 	Optional<Utilisateur> findUtilisateurByToken(@Param("tokenValue") String tokenValue);
 
 }

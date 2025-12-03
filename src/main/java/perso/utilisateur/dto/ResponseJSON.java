@@ -13,25 +13,26 @@ public class ResponseJSON {
     @JsonView(POV.Public.class)
     String message;
     @JsonView(POV.Public.class)
-    int  status;
+    int status;
     @JsonView(POV.Public.class)
     Object data;
     @JsonIgnore
     protected HashMap<String, Object> dataMap = new HashMap<>();
 
-    public ResponseJSON(String message,int status,Object data){
+    public ResponseJSON(String message, int status, Object data) {
         this.setMessage(message);
         this.setStatus(status);
         this.setData(data);
     }
 
-    public ResponseJSON(String message,int status){
+    public ResponseJSON(String message, int status) {
         this.setMessage(message);
         this.setStatus(status);
     }
 
-		public void addObject(String key,Object data){
-			this.dataMap.put(key, data);
-			this.setData(dataMap);
-		}
+    public ResponseJSON addObject(String key, Object data) {
+        this.dataMap.put(key, data);
+        this.setData(dataMap);
+        return this;
+    }
 }

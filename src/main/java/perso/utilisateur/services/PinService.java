@@ -17,4 +17,8 @@ public class PinService {
     public Pin save(Pin pin){
         return this.pinRepo.save(pin);
     }
+
+    public Pin findPinUtilisateur(Integer idUtilisateur){
+        return pinRepo.findPinUtilisateur(idUtilisateur).orElseThrow(()->new RuntimeException("Cette utilisateur n'a jamais eu recu une pin"));
+    }
 }

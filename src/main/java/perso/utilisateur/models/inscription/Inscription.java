@@ -1,24 +1,26 @@
-package perso.utilisateur.models;
+package perso.utilisateur.models.inscription;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.*;
 import perso.utilisateur.dto.InscriptionDTO;
+import perso.utilisateur.models.Role;
+import perso.utilisateur.models.Utilisateur;
 import perso.utilisateur.other.POV;
 import perso.utilisateur.util.SecurityUtil;
 
 @Entity
-@Table(name = "utilisateur")
+@Table(name = "inscription")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Utilisateur {
+public class Inscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_utilisateur")
+    @Column(name = "id_inscription")
     @JsonView(POV.Public.class)
-    private Integer idUtilisateur;
+    private Integer idInscription;
 
     @Column(name = "pseudo", nullable = false)
     @JsonView(POV.Public.class)
@@ -31,25 +33,19 @@ public class Utilisateur {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToOne(optional = false,cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_role", referencedColumnName = "id_role", nullable = false)
-    @JsonView(POV.Public.class)
-    private Role role;
-
-    public Pin setPin() {
-        return new Pin(SecurityUtil.generatePin(),this);
-    }
-
-    public TentativeConnection increaseNumberAttempt(TentativeConnection tentativeBefore) {
-        return new TentativeConnection(tentativeBefore.getNombre()+1);
-    }
-
-    public static Utilisateur from(InscriptionDTO inscriptionDTO) {
-        Utilisateur utilisateur = new Utilisateur();
+    public static Inscription from(InscriptionDTO inscriptionDTO) {
+        Inscription utilisateur = new Inscription();
         utilisateur.setPseudo(inscriptionDTO.getPseudo());
         utilisateur.setEmail(inscriptionDTO.getEmail());
         utilisateur.setPassword(SecurityUtil.hashPassword(inscriptionDTO.getPassword()));
-        utilisateur.setRole(new Role(1, "Membre simple"));
+        return utilisateur;
+    }
+
+    public Utilisateur turnUtilisateur(){
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setPseudo(this.getPseudo());
+        utilisateur.setEmail(this.getEmail());
+        utilisateur.setPassword(this.getPassword());
         return utilisateur;
     }
 }

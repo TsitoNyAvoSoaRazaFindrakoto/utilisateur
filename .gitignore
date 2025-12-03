@@ -34,3 +34,5 @@ build/
 
 src/main/resources/application.properties
 src/test/java/perso/utilisateur/UtilisateurApplicationTests.java
+
+src/main/resources/keyFirebase.json
